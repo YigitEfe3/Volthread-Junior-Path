@@ -1,0 +1,2 @@
+this is the first line of the input file for the oracleCharacterStream class
+this is the second line of the input file for the oracleCharacterStream class

@@ -1,0 +1,7 @@
+This is the lab1read
+text file, the read method will
+read these lines
+and write method
+will write these lines
+to the lab1write text file
+................................
