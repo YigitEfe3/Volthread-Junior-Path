@@ -31,7 +31,7 @@ package org.example.Collections;
 *
 * ----------------------------------------------------------------------------------------------------------------------
 *
-*      COLLECTION INTERFACE
+*      COLLECTION
 *
 *   The Collection interface contains methods that perform basic operations, such as;
 *       - int size()                                : returns the number of elements
@@ -57,7 +57,7 @@ package org.example.Collections;
 *
 * ----------------------------------------------------------------------------------------------------------------------
 *
-*       SET INTERFACE
+*       SET
 *
 *
 *   A collection that cannot contain duplicate elements.
@@ -76,19 +76,53 @@ package org.example.Collections;
 *       - LinkedHashSet : Implemented as a hash table with a linked list running through it,
 *                         orders its elements based on the order of insertion.
 *
+*-----------------------------------------------------------------------------------------------------------------------
 *
+*       LIST ALGORITHMS
 *
+*   sort — sorts a List using a merge sort algorithm, which provides a fast, stable sort.
+*           (A stable sort is one that does not reorder equal elements.)
+*   shuffle — randomly permutes the elements in a List.
+*   reverse — reverses the order of the elements in a List.
+*   rotate — rotates all the elements in a List by a specified distance.
+*   swap — swaps the elements at specified positions in a List.
+*   replaceAll — replaces all occurrences of one specified value with another.
+*   fill — overwrites every element in a List with the specified value.
+*   copy — copies the source List into the destination List.
+*   binarySearch — searches for an element in an ordered List using the binary search algorithm.
+*   indexOfSubList — returns the index of the first sublist of one List that is equal to another.
+*   lastIndexOfSubList — returns the index of the last sublist of one List that is equal to another.
 *
+*-----------------------------------------------------------------------------------------------------------------------
 *
+*       QUEUE
 *
+*   return() and poll() methods both remove and return the head of the queue. Only difference is that
+*                       if the queue is empty, remove throws NoSuchElementException, while poll returns null.
 *
+*   add() and offer() methods both inserts an element to the queue, if the capacity is reached,
+*                       add throws an IllegalStateException and poll returns false
 *
+*   element() and peek() methods both return, but do not remove, the head of the queue. If the queue is empty,
+*                        element throws NoSuchElementException, while peek returns null.
 *
-*
-*
-*
-*
+*-----------------------------------------------------------------------------------------------------------------------
+ *
+ *       DEQUE
+ *
+ *   Insertion methods
+ *      -addFirst(e), offerFirst(e), addLast(e), offerLast(e)
+ *   Removal methods
+ *      -removeFirst(), pollFirst(), removeLast(), pollLast()
+ *   Examine (Retrieval) methods
+ *      -getFirst(), peekFirst(), getLast(), peekLast()
+ *
+ *   removeFirstOccurrence()
+ *   removeLastOccurrence()
+ *
+ *
 * */
+
 
 public class CollectionsOracle {
 }
