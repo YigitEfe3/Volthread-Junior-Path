@@ -1,0 +1,136 @@
+
+
+    JDBC INTRODUCTION
+
+    - JDBC helps you to write Java applications that manage these three programming activities:
+        > Connect to a data source, like a database
+        > Send queries and update statements to the database
+        > Retrieve and process the results received from the database in answer to your query
+
+------------------------------------------------------------------------------------------------------------------------
+
+    JDBC ARCHITECTURE
+
+    Two Tier Architecture for Data Access
+
+        A Java applet or application talks directly to the data source.
+            This requires a JDBC driver that can communicate with the particular data source being accessed.
+
+
+    Three Tier Architecture For Data Access
+
+        Commands are sent to a "middle tier" of services, which then sends the commands to the data source.
+            The data source processes the commands and sends the results back to the middle tier,
+            which then sends them to the user.
+        Middle tier makes it possible to maintain control over access and the kinds of updates that can be made to corporate data.
+        It simplifies the deployment of applications.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    RELATIONAL DATABASE OVERVIEW
+
+    Integrity Rules
+
+    - The rows in a relational table should all be distinct.
+
+    - Column values must not be repeating groups or arrays.
+
+    - A database takes care of situations where data may not be available by using a null value to indicate that a value is missing.
+        It does not equate to a blank or zero. A blank is considered equal to another blank,
+        a zero is equal to another zero, but two null values are not considered equal.
+
+    - When each row in a table is different, it is possible to use one or more columns to identify a particular row.
+        This unique column or group of columns is called a primary key.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    SELECT Statements - A SELECT statement, also called a query, is used to get information from a table.
+                        It specifies one or more column headings, one or more tables from which to select, and some criteria for selection.
+                        The RDBMS returns rows of the column entries that satisfy the stated requirements.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    WHERE Clauses - The WHERE clause in a SELECT statement provides the criteria for selecting values.
+
+        LIKE is used to compare strings, and it offers the feature that patterns containing wildcards can be used.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    Joins - A distinguishing feature of relational databases is that it is possible to get data from more than one table in what is called a join.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    INSERT —  adds new rows to a table. INSERT is used to populate a newly created table or to add a new row (or rows) to an already-existing table.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    DELETE —  removes a specified row or set of rows from a table
+
+------------------------------------------------------------------------------------------------------------------------
+
+    UPDATE —  changes an existing value in a column or group of columns in a table
+
+------------------------------------------------------------------------------------------------------------------------
+
+    CREATE TABLE —  creates a table with the column names the user provides. The user also needs to specify a type for the data in each column.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    DROP TABLE —  deletes all rows and removes the table definition from the database.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    ALTER TABLE —  adds or removes a column from a table.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    MySQL Connector/J Database URL
+
+    The following is the database connection URL syntax for MySQL Connector/J:
+
+    jdbc:mysql://[host][,failoverhost...]
+        [:port]/[database]
+        [?propertyName1][=propertyValue1]
+        [&propertyName2][=propertyValue2]...
+    host:port is the host name and port number of the computer hosting your database. If not specified, the default values of host and port are 127.0.0.1 and 3306, respectively.
+    database is the name of the database to connect to. If not specified, a connection is made with no default database.
+    failover is the name of a standby database (MySQL Connector/J supports failover).
+    propertyName=propertyValue represents an optional, ampersand-separated list of properties. These attributes enable you to instruct MySQL Connector/J to perform various tasks.
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

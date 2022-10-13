@@ -1,0 +1,52 @@
+
+
+    PROPERTIES
+
+    - Indexed Properties: An indexed property is an array instead of a single value.
+            In this case, the bean class provides a method for getting and setting the entire array.
+
+    - A bean's methods are the things it can do.
+            Any public method that is not part of a property definition is a bean method.
+
+    - Bound Properties: A bound property notifies listeners when its value changes. (PropertyChangeSupport)
+
+    - Constrained Properties: A constrained property is a special kind of bound property.
+            For a constrained property, the bean keeps track of a set of veto listeners.
+            When a constrained property is about to change, the listeners are consulted about the change.
+            Any one of the listeners has a chance to veto the change, in which case the property remains unchanged.
+            (VetoableChangeSupport)
+
+------------------------------------------------------------------------------------------------------------------------
+
+    METHODS
+
+    - To define a property in a bean class, supply public getter and setter methods.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    BEAN PERSISTENCE
+
+    - A bean has the property of persistence when its properties, fields, and state information are saved to
+            and retrieved from storage.
+
+    - The mechanism that makes persistence possible is called serialization. Object serialization means
+            converting an object into a data stream and writing it to storage.
+
+    - All beans must persist. To persist, your beans must support serialization by implementing either
+            the Serializable or the Externalizable interface.
+
+    - Default serialization will not serialize transient and static fields.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    LONG TERM PERSISTENCE
+
+    - Long-term persistence is a model that enables beans to be saved in XML format.
+
+    What is an XML?
+
+            An XML bean archive has its own specific syntax,
+            which includes the following tags to represent each bean element:
+                > an XML preamble to describe a version of XML and type of encoding
+                > a <java> tag to embody all object elements of the bean
+                > an <object> tag to represent a set of method calls needed to reconstruct an object from its serialized form
