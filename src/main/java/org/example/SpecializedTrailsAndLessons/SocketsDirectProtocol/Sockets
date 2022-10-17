@@ -1,0 +1,115 @@
+
+
+                                            SOCKETS DIRECT PROTOCOL (SDP)
+
+    - The Sockets Direct Protocol (SDP) provides access to high performance network connections, such as that provided by InfiniBand.
+
+    - For high performance computing environments, the capacity to move data across a network quickly and efficiently is a requirement.
+        Such networks are typically described as requiring high throughput and low latency.
+        > High throughput refers to an environment that can deliver a large amount of processing capacity over a long period of time.
+        > Low latency refers to the minimal delay between processing input and providing output, such as you would expect in a real-time application.
+
+    - In these environments, conventional networking using socket streams can create bottlenecks when it comes to moving data.
+
+    - InfiniBand was introduced to address the need for high performance computing. One of the most important features of IB is Remote Direct Memory Access (RDMA).
+        RDMA enables moving data directly from the memory of one computer to another computer,
+        bypassing the operating system of both computers and resulting in significant performance gains.
+
+    OVERVIEW
+
+    - SDP support is essentially a TCP bypass technology.
+
+    - When SDP is enabled and an application attempts to open a TCP connection, the TCP mechanism is bypassed and communication goes directly to the IB network.
+
+    - This process can happen during the binding process or the connecting process (but happens only once for each socket).
+
+    - SDP support is disabled by default. The steps to enable SDP support are:
+          > Create an SDP configuration file.
+          > Set the system property that specifies the location of the configuration file.
+
+    CREATING AN SDO CONFIGURATION FILE
+
+    - There are two types of rules, as follows:
+
+        > A "bind" rule indicates that the SDP protocol transport should be used when a TCP socket binds to an address and port that match the rule.
+        > A "connect" rule indicates that the SDP protocol transport should be used when an unbound TCP socket attempts to connect to
+            an address and port that match the rule.
+
+    - A rule has the following form: ("bind"|"connect")1*LWSP-char(hostname|ipaddress)["/"prefix])1*LWSP-char("*"|port)["-"("*"|port)]
+
+    - The first keyword indicates whether the rule is a bind or a connect rule.
+
+    ENABLING THE SDP PROTOCOL
+
+    - SDP support is disabled by default. To enable SDP support, set the com.sun.sdp.conf system property by providing the location of the configuration file.
+        The following example starts an application using a configuration file named sdp.conf:
+
+            % java -Dcom.sun.sdp.conf=sdp.conf -Djava.net.preferIPv4Stack=true  ExampleApplication
+
+    DEBUGGING SDP
+
+    - You can enable debugging messages by using the -Dcom.sun.sdp.debug flag. If you specify a file, the messages will be output to that file. Otherwise, the messages will be printed to standard output.
+
+            % java -Dcom.sun.sdp.conf=sdp.conf -Dcom.sun.sdp.debug ExampleApplication               (messages printed to standard output)
+
+            % java -Dcom.sun.sdp.conf=sdp.conf -Dcom.sun.sdp.debug=debug.log ExampleApplication     (output redirected to a file named debug.log)
+
+    TECHNICAL ISSUES WITH SDP
+
+    1 - IPv4 and IPv6 incompatibility
+    2 - Bugs
+
+    SUPPORTED JAVA APIS
+
+    - All of the APIs that use TCP can use SDP
+
+    - When SDP support is enabled, it just works without any change to your code. Compiling is not necessary.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

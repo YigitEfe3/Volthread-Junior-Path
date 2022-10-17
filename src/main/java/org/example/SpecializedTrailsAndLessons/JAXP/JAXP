@@ -1,0 +1,180 @@
+
+
+                                    JAXP    (Java API for XML Processing)
+
+INTRODUCTION
+
+    - The Java API for XML Processing (JAXP) is for processing XML data using applications written in the Java programming language.
+
+
+Overview of the Packages
+
+    - javax.xml.parsers:    The JAXP APIs, which provide a common interface for different vendors' SAX and DOM parsers.
+
+      org.w3c.dom:          Defines the Document class (a DOM) as well as classes for all the components of a DOM.
+
+      org.xml.sax:          Defines the basic SAX APIs.
+
+      javax.xml.transform:  Defines the XSLT APIs that let you transform XML into other forms.
+
+      javax.xml.stream:     Provides StAX-specific transformation APIs.
+
+    - SAX : Simple API for XML is the event-driven, serial-access mechanism that does element-by-element processing.
+
+SAX APIs
+
+    - The parser wraps a SAXReader object. When the parser's parse() method is invoked,
+            the reader invokes one of several callback methods implemented in the application.
+            Those methods are defined by the interfaces ContentHandler, ErrorHandler, DTDHandler, and EntityResolver.
+
+    - Summary of the key SAX APIs:
+            > SAXParserFactory : creates an instance of the parser determined by the system property, javax.xml.parsers.SAXParserFactory.
+
+            > SAXParser : defines several kinds of parse() methods.
+                           In general, you pass an XML data source and a DefaultHandler object to the parser, which processes the XML and
+                           invokes the appropriate methods in the handler object.
+
+            > SAXReader : The SAXParser wraps a SAXReader. Typically, you do not care about that,
+                           but every once in a while you need to get hold of it using SAXParser's getXMLReader() so that you can configure it.
+                           It is the SAXReader that carries on the conversation with the SAX event handlers you define.
+
+            > DefaultHandler : implements the ContentHandler, ErrorHandler, DTDHandler, and EntityResolver interfaces (with null methods),
+                                so you can override only the ones you are interested in.
+
+            > ContentHandler : Methods such as startDocument, endDocument, startElement, and endElement are invoked when an XML tag is recognized.
+                                This interface also defines the methods characters() and processingInstruction(),
+                                which are invoked when the parser encounters the text in an XML element or an inline processing instruction, respectively.
+
+            > ErrorHandler : Methods error(), fatalError(), and warning() are invoked in response to various parsing errors.
+
+            > DTDHandler : Defines methods you will generally never be called upon to use. Used when processing a DTD to
+                            recognize and act on declarations for an unparsed entity.
+
+            > EntityResolver : The resolveEntity method is invoked when the parser must identify data identified by a URI.
+                                In most cases, a URI is simply a URL, which specifies the location of a document,
+                                but in some cases the document may be identified by a URN - a public identifier, or name, that is unique in the web space.
+                                The public identifier may be specified in addition to the URL.
+                                The EntityResolver can then use the public identifier instead of the URL to find the document-for example,
+                                to access a local copy of the document if one exists.
+
+------------------------------------------------------------------------------------------------------------------------
+
+SIMPLE API FOR XML (SAX)
+
+    - SAX is an event-driven, serial-access mechanism for accessing XML documents.
+
+    - Fastest and least memory-intensive mechanism that is currently available for dealing with XML documents
+
+Parsing an XML File Using SAX       //TODO Parsing an XML File Using SAX (altta örnek var onu dene projeye başlamadan önce)
+                                     https://docs.oracle.com/javase/tutorial/jaxp/sax/parsing.html
+
+    1 - Setting Up I/O
+        The first order of business is to process the command-line arguments, which at this stage only serve to get the name of the file to process.
+            The filename String that you give when you run the application will be converted to a java.io.File URL by an internal method, convertToFileURL().
+    2 - Implementing the ContentHandler Interface
+        The most important interface in SAXLocalNameCount is ContentHandler.
+            This interface requires a number of methods that the SAX parser invokes in response to various parsing events.
+            The major event-handling methods are: startDocument, endDocument, startElement, and endElement.
+        The easiest way to implement this interface is to extend the DefaultHandler class, defined in the org.xml.sax.helpers package.
+            That class provides do-nothing methods for all the ContentHandler events. The example program extends that class.
+    3 - Handling Content Events
+        3.1 - Document Events : What the application does when the parser encounters the start and end points of the document being parsed.
+        3.2 - Element Events : Processes the element tags, including any attributes defined in the start tag,
+                                to obtain the namespace universal resource identifier (URI), the local name and the qualified name of that element.
+        3.3 - Character Events : The JAXP SAX API also allows you to handle the characters that the parser delivers to your application,
+                                  using the ContentHandler.characters() method.
+    4 - Setting Up the Parser
+        Create a SAXParserFactory instance, as determined by the setting of the javax.xml.parsers.SAXParserFactory system property.
+        You now need to implement the XMLReader that all parsers must implement.
+    5 - Setting up Error Handling
+        You could start using your parser now, but it is safer to implement some error handling.
+        The parser can generate three kinds of errors: a fatal error, an error, and a warning.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

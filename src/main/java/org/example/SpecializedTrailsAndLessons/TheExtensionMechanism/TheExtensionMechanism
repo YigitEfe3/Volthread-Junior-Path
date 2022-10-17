@@ -1,0 +1,170 @@
+
+
+                                            THE EXTENSION MECHANISM
+
+    - The extension mechanism provides a standard, scalable way to make custom APIs available to all applications
+            running on the Java platform.
+
+    - Java extensions are also referred to as optional packages.
+
+    - Extensions are groups of packages and classes that augment the Java platform through the extension mechanism.
+
+    - The extension mechanism enables the runtime environment to find and load extension classes without the extension classes
+            having to be named on the class path.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    CREATING AND USING EXTENSIONS
+
+    Installed Extensions
+
+        - Installed extensions are JAR files in the lib/ext directory of the JRE software.
+
+    Download Extensions
+
+        - Download extensions are sets of classes (and related resources) in JAR files.
+
+        - A JAR file's manifest can contain headers that refer to one or more download extensions.
+
+        - The extensions can be referenced in one of two ways:
+              > by a Class-Path header
+              > by an Extension-List header
+
+        - Class-Path header
+
+            > Downloaded only for the lifetime of the application that downloads them, such as a web browser.
+            > Advantage : nothing is installed on the client.
+            > Disadvantage : they are downloaded each time they are needed.
+
+    Understanding Extension Class Loading
+
+        - When the runtime environment needs to load a new class for an application,
+                it looks for the class in the following locations, in order:
+
+              > Bootstrap classes: the runtime classes in rt.jar, internationalization classes in i18n.jar, and others.
+              > Installed extensions: classes in JAR files in the lib/ext directory of the JRE, and in the system-wide,
+                                      platform-specific extension directory.
+              > The class path: classes, including classes in JAR files, on paths specified by the system property java.class.path.
+
+        - The Java Class Loading Mechanism
+
+              > Every class loader has a "parent" class loader.
+              > Here are some highlights of the class-loading API:
+                    ~ Constructors in ClassLoader and its subclasses allow you to specify a parent when you
+                        instantiate a new class loader.
+                    ~ The loadClass method in ClassLoader performs these tasks, in order, when called to load a class:
+                          # If a class has already been loaded, it returns it.
+                          # Otherwise, it delegates the search for the new class to the parent class loader.
+                          # If the parent class loader does not find the class, loadClass calls findClass to find and load the class.
+                    ~ The findClass method of ClassLoader searches for the class in the current class loader if the
+                            class wasn't found by the parent class loader. You will probably want to override this
+                            method when you instantiate a class loader subclass in your application.
+                    ~ The class java.net.URLClassLoader serves as the basic class loader for extensions and other JAR files,
+                            overriding the findClass method of java.lang.ClassLoader to search one or more specified URLs
+                            for classes and resources.
+
+    Creating Extensible Applications
+
+        - An extensible application is one that you can extend without modifying its original code base.
+
+------------------------------------------------------------------------------------------------------------------------
+
+    MAKING EXTENSIONS SECURE
+
+    Setting Privileges for Extensions
+
+        - If a Security Manager is in force, the following conditions must be met to enable any software,
+            including extension software, to perform security-sensitive operations:
+              > The security-sensitive code in the extension must be wrapped in a PrivilegedAction object.
+              > The security policy implemented by the security manager must grant the appropriate permission to the extension.
+                By default, installed extensions are granted all security permissions as if they were part of the core platform API.
+                The permissions granted by the security policy apply only to code wrapped in the PrivilegedAction instance.
+
+    Sealing Packages in Extensions
+
+        - To seal your extension packages, you must add the Sealed header to the manifest of the JAR file containing your extension.
+
+        - Manifest-Version: 1.0
+          Sealed: true
+
+          All packages in any JAR file having this manifest will be sealed.
+
+        - Name: com/myCompany/package_3/
+          Sealed: true
+
+          Only Sealed header is that associated with the Name header of package com.myCompany.package_3,
+                so only that package is sealed.
+
+        - Manifest-Version: 1.0
+          Sealed: true
+
+          Name: com/myCompany/package_2/
+          Sealed: false
+
+          All packages except for package_2 are sealed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
