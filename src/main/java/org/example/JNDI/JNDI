@@ -1,0 +1,389 @@
+
+    NAMING AND DIRECTORY CONCEPTS
+
+    Naming Concepts
+
+        - A copy of the object cannot be placed inside the naming service. Instead, they must be stored by reference;
+            that is, a pointer or reference to the object is placed inside the naming service.
+            A reference represents information about how to access an object.
+
+    Directory Concepts
+
+        - The computer's directory service is available online and can be used to store a variety of information
+            that can be utilized by users, programs, and even the computer itself and other computers.
+
+        -  A directory object contains attributes that describe the object that it represents.
+                > An attribute has an attribute identifier and a set of attribute values.
+                    An attribute identifier is a token that identifies an attribute independent of its values.
+                    ~ Attribute Identifier : Attribute Value
+                                      mail   john.smith@example.com
+
+------------------------------------------------------------------------------------------------------------------------
+
+    OVERVIEW OF JNDI
+
+    - Provides naming and directory functionality to applications
+
+    Architecture
+                                               (SPI = Service Provider Interface)
+        - Naming and directory services -> JNDI SPI -> Naming Manager -> JNDI API -> Java Application
+
+    Packaging
+
+        - The JDK includes service providers for the following naming/directory services:
+              > Lightweight Directory Access Protocol (LDAP)
+              > Common Object Request Broker Architecture (CORBA) Common Object Services (COS) name service
+              > Java Remote Method Invocation (RMI) Registry
+              > Domain Name Service (DNS)
+
+        - The JNDI is divided into five packages:
+              > javax.naming : defines a Context interface, which is the core interface for looking up,
+                                                                                        binding/unbinding,
+                                                                                        renaming objects and
+                                                                                        creating and destroying subcontexts.
+              > javax.naming.directory :  This package allows applications to retrieve associated with objects stored in the
+                    directory and to search for objects using specified attributes.
+              > javax.naming.ldap
+              > javax.naming.event : supporting event notification
+              > javax.naming.spi : provides the means by which developers of different naming/directory service providers
+                                   can develop and hook up their implementations so that the corresponding services are
+                                   accessible from applications that use the JNDI.
+
+        - Context
+            > lookup(): You supply lookup() the name of the object you want to look up, and it returns the object bound to that name.
+            > listBindings() : Returns an enumeration of name-to-object bindings. A binding is a tuple containing
+                                                                                the name of the bound object,
+                                                                                the name of the object's class, and
+                                                                                the object itself
+
+            > list() : Returns an enumeration of names containing an object's name and the name of the object's class.
+
+        - Directory Context
+            > getAttributes() : Retrieves the attributes associated with a directory entry
+            > modifyAttributes() : Add, replace, or remove attributes and/or attribute values.
+            > search()
+
+------------------------------------------------------------------------------------------------------------------------
+
+    The difference between lookup() and search()
+
+        lookup() finds and returns a single object in one context,
+        search() may return multiple objects even from different contexts.
+
+    The difference between list() and listBindings()
+
+                list() attempts to return an enumeration of all the objects         in the current context as NameClassPair,
+        listBindings() attempts to return an enumeration of all the object bindings in the current context.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+    Naming and Directory Operations
+
+    Before performing any operation on a naming or directory service,
+        you need to acquire an initial context (the starting point) into the namespace.
+        This is because all methods on naming and directory services are performed relative to some context.
+        To get an initial context, you must follow these steps.
+
+        - Select the service provider of the corresponding service you want to access.
+        - Specify any configuration that the initial context needs.
+        - Call the InitialContext constructor.
+
+    There are two new static methods available in Java SE 6 to lookup a name:
+
+        - InitialContext.doLookup(Name name)
+        - InitialContext.doLookup(String name)
+        These methods provide a shortcut way of looking up a name without instantiating an InitialContext.
+
+    Listing Context
+
+        - Context.list() returns an enumeration of NameClassPair. Each NameClassPair consists of the object's name and its class name.
+              list() is intended for browser-style applications that just want to display the names of objects in a context.
+
+        - Context.listBindings() returns an enumeration of Binding. Binding is a subclass of NameClassPair.
+              A binding contains not only the object's name and class name, but also the object.
+              listBindings() is intended for applications that need to perform operations on the objects in a context in a mass.
+
+        - The application can use either list() or the potentially more expensive listBindings(),
+              depending on the type of information it needs.
+
+    Add, Replace or Remove a Binding
+
+        - Context.bind() is used to add a binding to a context. It accepts as arguments
+                                                                                        the name of the object and
+                                                                                        the object to be bound.
+
+        - rebind() is used to add or replace a binding. It accepts the same arguments as bind(),
+                but the semantics are such that if the name is already bound,
+                then it will be unbound and the newly given object will be bound.
+
+        - unbind() is used to remove a binding.
+
+    Rename
+
+        - Context.rename() is used to rename an object in a context.
+
+    Create and Destroy Subcontexts
+
+        - To create a naming context, you supply to createSubcontext() the name of the context that you want to create.
+
+        - To create a context that has attributes, you supply to DirContext.createSubcontext() the name of the context
+                that you want to create and its attributes.
+
+        - To destroy a context, you supply to destroySubcontext() the name of the context to destroy.
+
+    Attribute Names
+
+        - An attribute consists of an attribute identifier(name) and a set of attribute values.
+
+    Read Attributes
+
+        - To read the attributes of an object from the directory,
+                use DirContext.getAttributes() and pass it the name of the object for which you want the attributes.
+
+        - To read a selective subset of attributes,
+                you supply an array of strings that are attribute identifiers of the attributes that you want to retrieve.
+
+    Modify Attributes
+
+        - Following are the three types of modifications:
+              > ADD_ATTRIBUTE
+              > REPLACE_ATTRIBUTE
+              > REMOVE_ATTRIBUTE
+
+        - Modifications are applied in the order in which they appear in the list.
+                Either all of the modifications are executed, or none are.
+
+        - // Specify the changes to make
+          ModificationItem[] mods = new ModificationItem[3];
+
+          // Replace the "mail" attribute with a new value
+          mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+              new BasicAttribute("mail", "geisel@wizards.com"));
+
+          // Add an additional value to "telephonenumber"
+          mods[1] = new ModificationItem(DirContext.ADD_ATTRIBUTE,
+              new BasicAttribute("telephonenumber", "+1 555 555 5555"));
+
+          // Remove the "jpegphoto" attribute
+          mods[2] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
+              new BasicAttribute("jpegphoto"));
+
+          // Perform the requested modifications on the named object
+          ctx.modifyAttributes(name, mods);
+
+    Add, Replace Binding with Attributes
+
+        - Adding a Binding that has Attributes
+            > DirContext.bind() is used to add a binding that has attributes to a context. It accepts as arguments
+                                                                                                the name of the object,
+                                                                                                the object to be bound, and
+                                                                                                a set of attributes.
+
+        - Replacing a Binding that has Attributes
+            >DirContext.rebind() is used to add or replace a binding and its attributes. It accepts the same arguments as bind().
+                    However, rebind()'s semantics require that if the name is already bound,
+                    then it will be unbound and the newly given object and attributes will be bound.
+
+    Search
+
+        - Basic Search
+
+            // Specify the attributes to match
+            // Ask for objects that has a surname ("sn") attribute with
+            // the value "Geisel" and the "mail" attribute
+
+            // ignore attribute name case
+            Attributes matchAttrs = new BasicAttributes(true);
+            matchAttrs.put(new BasicAttribute("sn", "Geisel"));
+            matchAttrs.put(new BasicAttribute("mail"));
+
+            // Search for objects that have those matching attributes
+            NamingEnumeration answer = ctx.search("ou=People", matchAttrs);
+            You can then print the results as follows.
+
+            while (answer.hasMore()) {
+                SearchResult sr = (SearchResult)answer.next();
+                System.out.println(">>>" + sr.getName());
+                printAttrs(sr.getAttributes());
+            }
+
+    Filters
+
+        - // Create the default search controls
+          SearchControls ctls = new SearchControls();
+
+          // Specify the search filter to match
+          // Ask for objects that have the attribute "sn" == "Geisel"
+          // and the "mail" attribute
+          String filter = "(&(sn=Geisel)(mail=*))";
+
+          // Search for objects using the filter
+          NamingEnumeration answer = ctx.search("ou=People", filter, ctls);
+
+    Scope
+
+        - Search an entire subtree
+          // Specify the ids of the attributes to return
+          String[] attrIDs = {"sn", "telephonenumber", "golfhandicap", "mail"};
+          SearchControls ctls = new SearchControls();
+          ctls.setReturningAttributes(attrIDs);
+          ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+          // Specify the search filter to match
+          // Ask for objects that have the attribute "sn" == "Geisel"
+          // and the "mail" attribute
+          String filter = "(&(sn=Geisel)(mail=*))";
+
+          // Search the subtree for objects by using the filter
+          NamingEnumeration answer = ctx.search("", filter, ctls);
+
+        - Search the name of the object
+          // Specify the ids of the attributes to return
+          String[] attrIDs = {"sn", "telephonenumber", "golfhandicap", "mail"};
+          SearchControls ctls = new SearchControls();
+          ctls.setReturningAttributes(attrIDs);
+          ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
+
+          // Specify the search filter to match
+          // Ask for objects that have the attribute "sn" == "Geisel"
+          // and the "mail" attribute
+          String filter = "(&(sn=Geisel)(mail=*))";
+
+          // Search the subtree for objects by using the filter
+          NamingEnumeration answer =
+              ctx.search("cn=Ted Geisel, ou=People", filter, ctls);
+
+    Result Count
+
+        - Sometimes, a query might produce too many answers and you want to limit the number of answers returned.
+            You can do this by using the count limit search control.
+            By default, a search does not have a count limit—it will return all answers that it finds.
+            To set the count limit of a search, pass the number to SearchControls.setCountLimit().
+
+          The following example sets the count limit to 1.
+
+          // Set the search controls to limit the count to 1
+          SearchControls ctls = new SearchControls();
+          ctls.setCountLimit(1);
+
+    Time Limit
+
+        - A time limit on a search places an upper bound on the amount of time that the search operation will
+            block waiting for the answers. This is useful when you don't want to wait too long for an answer.
+            If the time limit specified is exceeded before the search operation can be completed,
+            then a TimeLimitExceededException will be thrown.
+
+          To set the time limit of a search, pass the number of milliseconds to SearchControls.setTimeLimit().
+          The following example sets the time limit to 1 second.
+
+          // Set the search controls to limit the time to 1 second (1000 ms)
+          SearchControls ctls = new SearchControls();
+          ctls.setTimeLimit(1000);
+
+------------------------------------------------------------------------------------------------------------------------
+
+    Java Objects in the Directory
+
+    - You use the directory as a repository for Java objects.
+
+    - The directory provides a centrally administered, and possibly replicated,
+            service for use by Java applications distributed across the network.
+
+    - The JNDI provides an object-oriented view of the directory, thereby allowing Java objects to be added to
+            and retrieved from the directory without requiring the client to manage data representation issues.
+
+    - Storing and Reading Objects
+
+        > Applications and services can use the directory in different ways to store and locate objects:
+            ~ Store (a copy of) the object itself.
+            ~ Store a reference to an object.
+            ~ Store attributes that describe the object.
+
+        > A Java object's serialized form contains the object's state and an object's reference in a compact representation
+                of addressing information that can be used to contact the object.
+
+        > Programmatically, all applications use one of the following methods when storing objects in the directory:
+              ~ Context.bind()
+              ~ DirContext.bind()
+              ~ Context.rebind()
+              ~ DirContext.rebind()
+
+    - Serializable Objects
+
+        > To serialize an object means to convert its state to a byte stream so that
+                the byte stream can be reverted back into a copy of the object.
+
+        > Binding a Serializable Object
+
+            You can store a serializable object in the directory if the underlying service provider supports that action,
+                as does Oracle's LDAP service provider.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
