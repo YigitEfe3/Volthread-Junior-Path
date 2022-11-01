@@ -1,4 +1,4 @@
-package org.example.CoveringTheBasics.Deployment;
+package org.example.CoveringTheBasics.EssentialJavaClasses.Deployment;
 
 /*
 * Applet is a special type of program that is embedded in the webpage to generate the dynamic content.

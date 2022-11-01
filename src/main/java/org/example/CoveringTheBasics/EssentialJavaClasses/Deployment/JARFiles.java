@@ -1,4 +1,4 @@
-package org.example.CoveringTheBasics.Deployment;
+package org.example.CoveringTheBasics.EssentialJavaClasses.Deployment;
 
 /*
 *
