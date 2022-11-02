@@ -1,0 +1,151 @@
+
+
+RESOURCE CREATION
+
+Resources and JNDI Naming
+
+    - In a distributed application, components need to access other components and resources, such as databases.
+            For example, a servlet might invoke remote methods on an enterprise bean that retrieves information from a database.
+    - In the Java EE platform, the Java Naming and Directory Interface (JNDI) naming service enables components to locate other components and resources.
+    - A resource is a program object that provides connections to systems, such as database servers and messaging systems.
+            (A Java Database Connectivity resource is sometimes referred to as a data source.)
+        * Each resource object is identified by a unique, people-friendly name, called the JNDI name.
+
+
+DataSource Objects and Connection Pools
+
+    - To store, organize, and retrieve data, most applications use a relational database.
+    - In the JDBC API, databases are accessed by using DataSource objects.
+            * A DataSource has a set of properties that identify and describe the real-world data source that it represents.
+            * These properties include such information as;
+                > the location of the database server,
+                > the name of the database,
+                > the network protocol to use to communicate with the server, and so on.
+    - A JDBC connection pool is a group of reusable connections for a particular database.
+            Because creating each new physical connection is time consuming, the server maintains a pool of available connections to increase performance.
+
+------------------------------------------------------------------------------------------------------------------------
+
+INJECTION
+
+Resource Injection
+
+    - Resource injection enables you to inject any resource available in the JNDI namespace into any container-managed object, such as
+                                                                                                                                    a servlet,
+                                                                                                                                    an enterprise bean, or
+                                                                                                                                    a managed bean.
+    - @Resource(name="java:comp/DefaultDataSource")
+      private javax.sql.DataSource dsc;
+
+    - @Resource(name="java:comp/DefaultDataSource")
+      public void setDsc(java.sql.DataSource ds) {
+          dsc = ds;
+      }
+
+
+Dependency Injection
+
+    - Dependency injection enables you to turn regular Java classes into managed objects and to inject them into any other managed object.
+    - Using dependency injection, your code can declare dependencies on any managed object.
+    - The container automatically provides instances of these dependencies at the injection points at runtime,
+            and it also manages the lifecycle of these instances for you.
+
+    - @javax.enterprise.context.RequestScoped
+      public class CurrencyConverter { ... }
+
+    - public class MyServlet extends HttpServlet {
+          @Inject CurrencyConverter cc;
+          ...
+      }
+
+      - As opposed to resource injection, dependency injection is typesafe because it resolves by type.
+      - To decouple your code from the implementation of the managed bean, you can reference the injected instances using
+            an interface type and have your managed bean implement that interface.
+
+
+The Main Differences Between Resource Injection and Dependency Injection
+
+Injection Mechanism	        Can Inject JNDI 	    Can Inject Regular 	        Resolves By	        Typesafe
+                           Resources Directly        Classes Directly
+
+Resource Injection                Yes                       No                  Resource name           No
+
+Dependency Injection               No                       Yes                     Type                Yes
+
+------------------------------------------------------------------------------------------------------------------------
+
+PACKAGING
+
+Packaging Applications
+
+    - A Java EE application is delivered in a Java Archive (JAR) file, a Web Archive (WAR) file, or an Enterprise Archive (EAR) file.
+
+    - An EAR file (see Figure 5-1) contains Java EE modules and, optionally, deployment descriptors.
+        * A deployment descriptor, an XML document with an .xml extension, describes the deployment settings of an application, a module, or a component.
+
+    - Deployment information is most commonly specified in the source code by annotations.
+            Deployment descriptors, if present, override what is specified in the source code
+
+    - The two types of deployment descriptors are Java EE and runtime.
+        * A Java EE deployment descriptor is defined by a Java EE specification and can be used to
+                configure deployment settings on any Java EE-compliant implementation.
+        * A runtime deployment descriptor is used to configure Java EE implementation-specific parameters.
+
+    - A Java EE module consists of one or more Java EE components for the same container type and, optionally, one component deployment descriptor of that type.
+            For example, an enterprise bean module deployment descriptor declares transaction attributes and security authorizations for an enterprise bean.
+
+    - Java EE modules are of the following types:
+
+        * EJB modules, which contain class files for enterprise beans and, optionally, an EJB deployment descriptor. (.jar extension)
+        * Web modules, which contain servlet class files, web files, supporting class files, GIF and HTML files, and,
+                optionally, a web application deployment descriptor.  (.war extension)
+        * Application client modules, which contain class files and, optionally, an application client deployment descriptor.  (.jar extension)
+        * Resource adapter modules, which contain all Java interfaces, classes, native libraries, and, optionally, a resource adapter deployment descriptor.
+                Together, these implement the Connector architecture for a particular EIS.  (.rar (resource adapter archive) extension)
+
+
+Packaging Enterprise Beans
+
+    - Packaging Enterprise Beans in EJB JAR Modules
+        * An EJB JAR file is portable and can be used for various applications.
+        * To assemble a Java EE application, package one or more modules, such as EJB JAR files, into an EAR file, the archive file that holds the application.
+
+    - Packaging Enterprise Beans in WAR Modules
+        * Enterprise beans often provide the business logic of a web application.
+                In these cases, packaging the enterprise bean within the web application's WAR module simplifies deployment and application organization.
+                Enterprise beans may be packaged within a WAR module as Java programming language class files or
+                within a JAR file that is bundled within the WAR module.
+        * To include enterprise bean class files in a WAR module, the class files should be in the WEB-INF/classes directory.
+        * To include a JAR file that contains enterprise beans in a WAR module, add the JAR to the WEB-INF/lib directory of the WAR module.
+
+
+Packaging Web Archives
+
+    - A web module is the smallest deployable and usable unit of web resources.
+
+    - A web module contains web components and static web content files, such as images, which are called web resources.
+
+    - A web module can contain;
+        * Web components,
+        * Web resources
+        * Server-side utility classes, such as shopping carts
+        * Client-side classes, such as utility classes
+
+    - A web module has a specific structure. The top-level directory of a web module is the document root of the application.
+        * The document root contains a subdirectory named WEB-INF, which can contain the following files and directories:
+          > classes, a directory that contains server-side classes: servlets, enterprise bean class files, utility classes, and JavaBeans components
+          > lib, a directory that contains JAR files that contain enterprise beans, and JAR archives of libraries called by server-side classes
+          > Deployment descriptors, such as web.xml (the web application deployment descriptor) and ejb-jar.xml (an EJB deployment descriptor)
+
+
+Packaging Resource Adapter Archives
+
+    - A Resource Adapter Archive (RAR) file stores XML files, Java classes, and other objects for Java EE Connector Architecture (JCA) applications.
+    - A RAR file can be contained in an Enterprise Archive (EAR) file, or it can exist as a separate file.
+
+    - The RAR file contains
+        * A JAR file with the implementation classes of the resource adapter
+        * An optional META-INF/ directory that can store an ra.xml file and/or an application server–specific deployment descriptor used for configuration purposes
+
+    - A RAR file can be deployed on the application server as a standalone component or as part of a larger application.
+            In both cases, the adapter is available to all applications using a lookup procedure.
