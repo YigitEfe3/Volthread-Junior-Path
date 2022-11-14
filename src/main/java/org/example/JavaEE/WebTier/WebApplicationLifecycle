@@ -1,0 +1,16 @@
+
+
+- A web application consists of web components;
+    * static resource files, such as images and cascading style sheets (CSS), and
+    * helper classes and libraries.
+
+- The web container provides many supporting services that enhance the capabilities of web components and make them easier to develop.
+
+- The process for creating, deploying, and executing a web application can be summarized as follows:
+
+      * Develop the web component code.
+      * Develop the web application deployment descriptor, if necessary.
+      * Compile the web application components and helper classes referenced by the components.
+      * Optionally, package the application into a deployable unit.
+      * Deploy the application into a web container.
+      * Access a URL that references the web application.

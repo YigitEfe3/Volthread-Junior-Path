@@ -1,0 +1,135 @@
+
+
+                                ENTITITES
+
+    - Typically, an entity represents a relational database, and each entity instance corresponds to a row in that table.
+
+    - An entity class must follow these requirements:
+
+        * The class must be annotated with the @Entity annotation.
+        * The class must have a no-argument constructor. The class may have other constructors.
+        * The class must not be declared final. No methods or persistent instance variables must be declared final.
+        * If an entity instance is passed by value as a detached object,
+                such as through a session bean's remote business interface, the class must implement the Serializable interface.
+        * Entities may extend both entity and non-entity classes, and non-entity classes may extend entity classes.
+        * Persistent instance variables must be declared
+                private,
+                protected, or
+                package-private and can be accessed directly only by the entity class's methods.
+
+
+
+Primary Keys in Entities
+
+    - The unique identifier, or primary key, enables clients to locate a particular entity instance.
+    - Every entity must have a primary key.
+    - Simple primary keys use the @Id annotation to denote the primary key property or field.
+
+    - A primary key class must meet these requirements.
+        * The access control modifier of the class must be public.
+        * The properties of the primary key class must be public or protected if property-based access is used.
+        * The class must have a public default constructor.
+        * The class must implement the hashCode() and equals(Object other) methods.
+        * The class must be serializable.
+        * A composite primary key must be represented and mapped to multiple fields or properties of the entity class or
+                must be represented and mapped as an embeddable class.
+        * If the class is mapped to multiple fields or properties of the entity class,
+                the names and types of the primary key fields or properties in the primary key class must match those of the entity class.
+
+
+
+Multiplicity in Entity Relationships
+
+    - One-to-one: Each entity instance is related to a single instance of another entity.
+    - One-to-many: An entity instance can be related to multiple instances of the other entities.
+    - Many-to-one: Multiple instances of an entity can be related to a single instance of the other entity.
+    - Many-to-many: The entity instances can be related to multiple instances of each other.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+Managing Entities
+
+    - Entities are managed by the entity manager
+    - The EntityManager API creates and removes persistent entity instances, finds entities by the entity's primary key, and allows queries to be run on entities.
+    - persist(): Entity's data is stored to the database when the transaction associated with the persist operation is completed.
+    - remove(): Managed entity instances are removed by invoking the remove method
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+Querying Entities
+
+    - The Java Persistence API provides the following methods for querying entities.
+
+        * The Java Persistence query language (JPQL) is a simple, string-based language similar to SQL used to query entities and their relationships.
+        * The Criteria API is used to create typesafe queries using Java programming language APIs to query for entities and their relationships.
+
+    -JPQL
+
+        * JPQL queries are typically more concise and more readable than Criteria queries.
+        * Developers familiar with SQL will find it easy to learn the syntax of JPQL.
+        * JPQL queries are not typesafe, however, and require a cast when retrieving the query result from the entity manager.
+                This means that type-casting errors may not be caught at compile time.
+
+    - Criteria Queries
+
+        * Criteria queries allow you to define the query in the business tier of the application.
+        * Criteria queries provide better performance because JPQL dynamic queries must be parsed each time they are called.
+        * Criteria queries are typesafe and therefore don't require casting.
+        *
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

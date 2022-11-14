@@ -1,0 +1,22 @@
+
+- A web application is a dynamic extension of a web or application server. Web applications are of the following types:
+
+    * Presentation-oriented: A presentation-oriented web application generates interactive web pages containing various types of markup language
+            (HTML, XHTML, XML, and so on) and dynamic content in response to requests.
+    * Service-oriented: A service-oriented web application implements the endpoint of a web service.
+            Presentation-oriented applications are often clients of service-oriented web applications.
+
+- Web components provide the dynamic extension capabilities for a web server.
+
+- Web components can be Java servlets, web pages implemented with JavaServer Faces technology, web service endpoints, or JSP pages.
+
+- Servlets are Java programming language classes that dynamically process requests and construct responses.
+
+- Servlets are best suited for service-oriented applications and the control functions of a presentation-oriented application.
+
+- JavaServer Faces and Facelets pages are more appropriate for generating text-based markup and are generally used for presentation-oriented applications.
+
+- Web components are supported by the services of a runtime platform called a web container.
+    * A web container provides such services as request dispatching, security, concurrency, and lifecycle management.
+    * A web container also gives web components access to such APIs as naming, transactions, and email.
+
