@@ -1,0 +1,317 @@
+
+
+                                    ENTERPRISE BEANS
+
+What is an Enterprise Bean?
+
+    - An enterprise bean is a server-side component that encapsulates the business logic of an application.
+
+    - The business logic is the code that fulfills the purpose of the application.
+
+
+Benefits of Enterprise Beans
+
+    - Because the EJB container provides system-level services to enterprise beans,
+            the bean developer can concentrate on solving business problems.
+
+    - Because the beans rather than the clients contain the application's business logic,
+            the client developer can focus on the presentation of the client.
+            The client developer does not have to code the routines that implement business rules or access databases.
+            As a result, the clients are thinner, a benefit that is particularly important for clients that run on small devices.
+
+    - Because enterprise beans are portable components, the application assembler can build new applications from existing beans.
+            Provided that they use the standard APIs, these applications can run on any compliant Java EE server.
+
+
+When to Use Enterprise Beans
+
+    - The application must be scalable.
+
+    - Transactions must ensure data integrity.
+
+    - The application will have a variety of clients.
+
+
+Types of Enterprise Beans
+
+    - Session : Performs a task for a client; optionally, may implement a web service
+
+    - Message-Driven : Acts as a listener for a particular messaging type, such as the Java Message Service API
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+SESSION BEAN
+
+    - A session bean encapsulates business logic that can be invoked programmatically by a client over
+            local, remote, or web service client views.
+
+    - To access an application that is deployed on the server, the client invokes the session bean's methods.
+
+    - A session bean is not persistent. (That is, its data is not saved to a database.)
+
+
+Types of Session Beans
+
+    Stateful Session Beans
+
+        - In a stateful session bean, the instance variables represent the state of a unique client/bean session.
+                Because the client interacts ("talks") with its bean, this state is often called the conversational state.
+
+        - A session bean is not shared; it can have only one client, in the same way that an interactive session can have only one user.
+
+        - The state is retained for the duration of the client/bean session.
+                If the client removes the bean, the session ends and the state disappears.
+                This transient nature of the state is not a problem, however, because when the conversation between the client and the bean ends,
+                there is no need to retain the state.
+
+
+    Stateless Session Beans
+
+        - A stateless session bean does not maintain a conversational state with the client.
+
+        - When a client invokes the methods of a stateless bean,
+                the bean's instance variables may contain a state specific to that client but only for the duration of the invocation.
+
+        - Because they can support multiple clients, stateless session beans can offer better scalability for applications that require large numbers of clients.
+
+        (!!!!! DIFFERENCE BETWEEN A STATELESS AND A STATEFUL BEAN !!!!!)
+        - A stateless session bean can implement a web service, but a stateful session bean cannot.
+
+
+    Singleton Session Bean
+
+        - A singleton session bean is instantiated once per application and exists for the lifecycle of the application.
+
+        - Singleton session beans are designed for circumstances in which a single enterprise bean instance is shared across and concurrently accessed by clients.
+
+        - Singleton beans have similar functionality to stateless session beans but different in that there is only one singleton session bean per application,
+                as opposed to a pool of stateless session beans, any of which may respond to a client request.
+
+        - Like stateless session beans, singleton session beans can implement web service endpoints.
+
+        - Singleton session beans maintain their state between client invocations but are not required to maintain their state across server crashes or shutdowns.
+
+    When To Use Which Session Bean
+
+        - Stateful session beans are appropriate if any of the following conditions are true.
+
+            * The bean's state represents the interaction between the bean and a specific client.
+
+            * The bean needs to hold information about the client across method invocations.
+
+            * The bean mediates between the client and the other components of the application, presenting a simplified view to the client.
+
+            * Behind the scenes, the bean manages the work flow of several enterprise beans.
+
+        - To improve performance, you might choose a stateless session bean if it has any of these traits.
+
+            * The bean's state has no data for a specific client.
+
+            * In a single method invocation, the bean performs a generic task for all clients.
+                    For example, you might use a stateless session bean to send an email that confirms an online order.
+
+            * The bean implements a web service.
+
+        - Singleton session beans are appropriate in the following circumstances.
+
+            * State needs to be shared across the application.
+
+            * A single enterprise bean needs to be accessed by multiple threads concurrently.
+
+            * The application needs an enterprise bean to perform tasks upon application startup and shutdown.
+
+            * The bean implements a web service.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+MESSAGE-DRIVEN BEAN
+
+    What Is a Message-Driven Bean
+
+        - A message-driven bean is an enterprise bean that allows Java EE applications to process messages asynchronously.
+                This type of bean normally acts as a JMS message listener, which is similar to an event listener but receives JMS messages instead of events.
+
+        - Message-driven beans can process JMS messages or other kinds of messages.
+
+        - Message-driven beans have the following characteristics.
+
+            * They execute upon receipt of a single client message.
+            * They are invoked asynchronously.
+            * They are relatively short-lived.
+            * They do not represent directly shared data in the database, but they can access and update this data.
+            * They can be transaction-aware.
+            * They are stateless.
+
+
+    Difference Between a Session Bean and a Message-Driven Bean
+
+        - The most visible difference between message-driven beans and session beans is that clients do not access message-driven beans through interfaces.
+
+        - In several respects, a message-driven bean resembles a stateless session bean.
+
+            * A message-driven bean's instances retain no data or conversational state for a specific client.
+
+            * All instances of a message-driven bean are equivalent, allowing the EJB container to assign a message to any message-driven bean instance.
+                    The container can pool these instances to allow streams of messages to be processed concurrently.
+
+            * A single message-driven bean can process messages from multiple clients.
+
+
+    When to Use Message-Driven Beans
+
+        - Session beans allow you to send JMS messages and to receive them synchronously but not asynchronously.
+
+        - To receive messages asynchronously, use a message-driven bean.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+ACCESSING ENTERPRISE BEANS
+
+    - The client of an enterprise bean obtains a reference to an instance of an enterprise bean through either
+            dependency injection, using Java programming language annotations, or JNDI lookup.
+
+    - Dependency injection is the simplest way of obtaining an enterprise bean reference.
+
+    - Portable JNDI Lookup Syntax
+
+        * java:global[/application name]/module name /enterprise bean name[/interface name ]
+
+        * java:module/enterprise bean name/[interface name]
+
+        * java:app[/module name]/enterprise bean name [/interface name]
+
+
+Deciding on Remote or Local Access
+
+    - Whether to allow local or remote access depends on the following factors.
+
+        * Tight or loose coupling of related beans: Tightly coupled beans depend on one another.
+                Tightly coupled beans are good candidates for local access. Because they fit together as a logical unit,
+                they typically call each other often and would benefit from the increased performance that is possible with local access.
+
+        * Type of client: If an enterprise bean is accessed by application clients, it should allow remote access.
+                In a production environment, these clients almost always run on machines other than those on which GlassFish Server is running.
+                If an enterprise bean's clients are web components or other enterprise beans,
+                the type of access depends on how you want to distribute your components.
+
+        * Component distribution: Java EE applications are scalable because their server-side components can be distributed across multiple machines.
+                In a distributed application, for example, the server that the web components run on may not be the one on which the enterprise beans
+                they access are deployed. In this distributed scenario, the enterprise beans should allow remote access.
+
+        * Performance: Owing to such factors as network latency, remote calls may be slower than local calls.
+                On the other hand, if you distribute components among different servers, you may improve the application's overall performance.
+                Both of these statements are generalizations; performance can vary in different operational environments.
+                Nevertheless, you should keep in mind how your application design might affect performance.
+
+    - If you aren't sure which type of access an enterprise bean should have, choose remote access. This decision gives you more flexibility.
+
+
+Local Clients      (@Local)
+
+    - A local client has these characteristics.
+
+        * It must run in the same application as the enterprise bean it accesses.
+        * It can be a web component or another enterprise bean.
+        * To the local client, the location of the enterprise bean it accesses is not transparent.
+
+
+Remote Clients      (@Remote)
+
+    - A remote client of an enterprise bean has the following traits.
+
+        * It can run on a different machine and a different JVM from the enterprise bean it accesses. (It is not required to run on a different JVM.)
+        * It can be a web component, an application client, or another enterprise bean.
+        * To a remote client, the location of the enterprise bean is transparent.
+        * The enterprise bean must implement a business interface. That is, remote clients may not access an enterprise bean through a no-interface view.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+THE CONTENTS OF AN ENTERPRISE BEAN
+
+    - To develop an enterprise bean, you must provide the following files.
+
+        * Enterprise bean class: Implements the business methods of the enterprise bean and any lifecycle callback methods.
+        * Business interfaces: Define the business methods implemented by the enterprise bean class.
+                               A business interface is not required if the enterprise bean exposes a local, no-interface view.
+        * Helper classes: Other classes needed by the enterprise bean class, such as exception and utility classes.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+THE LIFECYCLES OF ENTERPRISE BEANS
+
+    - The Lifecycle of a Stateful Session Bean
+
+        1- Create
+        2- Dependency injection, if any
+        3- PostConstruct callback, if any
+        4- Init method, or ejbCreate<METHOD>, if any
+
+                                            PrePassivate callback, if any
+            Does not Exist    --->  Ready   ---------------------------->  Passive
+                              <---          <----------------------------
+                                            PostActivate callback, if any
+
+        5- Remove
+        6- PreDestroy callback, if any
+
+    - The Lifecycle of a Stateless, Singleton Session Beans and a Message-Driven Bean
+
+        1- Dependency injection, if any
+        2- PostConstruct callback, if any
+        3- PreDestroy callback, if any
+
+        - Stateless and Singleton Session Beans
+                              1,2
+            Does not exist  ------> Ready
+                            <------
+                               3
+        - Message-Driven Bean
+                                          ___
+                              1,2        /   \  onMessage
+            Does not exist  ------> Ready <---\
+                            <------
+                               3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
