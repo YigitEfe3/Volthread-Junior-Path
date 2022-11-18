@@ -1,0 +1,187 @@
+
+
+                                    CONVERTERS, LISTENERS AND VALIDATORS
+
+USING THE STANDARD CONVERTERS
+
+    - The purpose of conversion is to take the String-based data coming in from the Servlet API and convert it to Java objects.
+
+    - Normally, converters are implicitly assigned based on the type of the EL expression pointed to by the value of the component.
+            However, these converters can also be accessed by a converter ID.
+
+    - <h:inputText value="#{loginBean.age}">
+          <f:converter converterId="javax.faces.Integer" />
+      </h:inputText>
+
+      This example takes the age variable from loginBean and convert it to an Integer.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+REGISTERING LISTENERS ON COMPONENTS
+
+    - An application developer can implement listeners as classes or as managed bean methods.
+
+        * If a listener is a managed bean method, the page author references the method from either the component's valueChangeListener attribute or
+                its actionListener attribute.
+        * If the listener is a class, the page author can reference the listener from either an f:valueChangeListener tag or an f:actionListener tag and
+                nest the tag inside the component tag to register the listener on the component.
+
+    - <h:inputText id="name"
+                   size="30"
+                   value="#{cashierBean.name}"
+                   required="true"
+                   requiredMessage="#{bundle.ReqCustomerName}">
+          <f:valueChangeListener
+              type="javaeetutorial.dukesbookstore.listeners.NameChanged" />
+      </h:inputText>
+                                                                                           (checks if the value of the component has changed)
+      This example places a valueChangeListener on the name component. The listener will be triggered if there is a change in the name component.
+
+
+    - <h:commandLink id="Duke" action="bookstore">
+          <f:actionListener
+              type="javaeetutorial.dukesbookstore.listeners.LinkBookChangeListener" />
+          <h:outputText value="#{bundle.Book201}"/>
+      </h:commandLink>
+                                                                                      (checks if the user has done an Action (e.g. link))
+      This example places a ActionListener on the name component. The listener will be triggered if there is an action done by the user (e.g. clicking a link).
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING THE STANDARD VALIDATORS
+
+    - Page authors and application developers can use validators to validate a component's data.
+
+    - To validate a component's value using a particular validator, you need to register that validator on the component.
+            You can do this in one of the following ways:
+
+         * Nest the validator's corresponding tag inside the component's tag. Using Validator Tags explains how to use the validateLongRange tag.
+                You can use the other standard tags in the same way.
+         * Refer to a method that performs the validation from the component tag's validator attribute.
+         * Nest a validator tag inside the component tag, and use either the validator tag's validatorId attribute or its
+                binding attribute to refer to the validator.
+
+
+    - <h:inputText id="quantity" size="4" value="#{item.quantity}">
+          <f:validateLongRange minimum="1"/>
+      </h:inputText>
+      <h:message for="quantity"/>
+
+      This example places a validator on the quantity component using a validator tag.
+
+
+    - <h:inputText id="userNo"
+                   title="Type a number from 0 to 10:"
+                   value="#{userNumberBean.userNumber}">
+          <f:validateLongRange minimum="#{userNumberBean.minimum}"
+                               maximum="#{userNumberBean.maximum}"/>
+      </h:inputText>
+
+      This example places a validator on the userNo component using EL expression to create a dynamic validator.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+REFERENCING A MANAGED BEAN METHOD       //TODO Managed Bean Method (see ManagedBeans)
+
+    - A component tag has a set of attributes for referencing managed bean methods that can perform certain functions for the component associated with the tag.
+
+    - Only components that implement ActionSource can use the action and actionListener attributes.
+
+    - Only components that implement EditableValueHolder can use the validator or valueChangeListener attributes.
+
+    - Component Tag Attributes That Reference Managed Bean Methods
+
+        * action                (must implement ActionSource)
+        * actionListener        (must implement ActionSource)
+        * validator             (must implement EditableValueHolder)
+        * valueChangeListener   (must implement EditableValueHolder)
+
+    - Examples on how to use the attributes:
+
+        * Referencing a Method That Performs Navigation     (action)
+
+            > If the page includes a component, such as a button or a link that navigates to another page when the component is activated, use the action attribute
+
+            > <h:commandButton value="#{bundle.Submit}"
+                               action="#{cashierBean.submit}" />
+
+              This attribute can either return a logical string that tells the application which page to access,
+                    or it sends a request to a managed bean (it does in this example) and then returns a logical string to the webpage which then it runs that URL.
+
+
+        * Referencing a Method That Handles an Action Event     (actionListener)
+
+            > If a component generates an action event that is being handled by a managed bean method, refer to the method using the actionListener attribute.
+
+            > <h:commandLink id="Duke" action="bookstore"
+                             actionListener="#{actionBean.chooseBookFromLink}">
+
+              This example listens for the user's click on the link and then runs managed bean's method.
+
+
+        * Referencing a Method That Performs Validation     (validator)
+
+            > If the input of one of the components on the page is validated by a managed bean method, refer to the method using the validator attribute.
+
+            > <h:inputText id="inputGuess"
+                  value="#{userNumberBean.userNumber}"
+                  required="true" size="3"
+                  disabled="#{userNumberBean.number eq userNumberBean.userNumber ...}"
+                  validator="#{userNumberBean.validateNumberRange}">
+              </h:inputText>
+
+              This example validates the value of the inputted number according to the specifications given in the managedBean method.
+
+
+        * Referencing a Method That Handles a Value-Change Event
+
+            > If you want a component on the page to generate a value-change event and tou want that event to be handled by a managed bean method
+                    instead of a valueChangeListener, refer to the method using the valueChangeListener attribute.
+
+            > <h:inputText id="name"
+                           size="30"
+                           value="#{cashierBean.name}"
+                           required="true"
+                           valueChangeListener="#{cashierBean.processValueChange}" />
+              </h:inputText>
+
+              In this example, the managed bean method is invoked when the value of the component is changed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

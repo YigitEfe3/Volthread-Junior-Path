@@ -1,0 +1,159 @@
+
+
+                            JAVASERVER FACES TECHNOLOGY
+
+
+- JavaServer Faces technology is a server-side component framework for building Java technology–based web applications.
+
+
+- JavaServer Faces technology consists of the following:
+
+        * An API for representing components and managing their state;
+                handling events, server-side validation, and data conversion;
+                defining page navigation;
+                supporting internationalization and accessibility;
+                and providing extensibility for all these features
+        * Tag libraries for adding components to web pages and for connecting components to server-side objects
+
+
+- With JavaServer Faces technology, with minimal effort, you can complete the following tasks:
+
+        * Create a web page.
+        * Drop components onto a web page by adding component tags.
+        * Bind components on a page to server-side data.
+        * Wire component-generated events to server-side application code.
+        * Save and restore application state beyond the life of server requests.
+        * Reuse and extend components through customization.
+
+
+- A typical JavaServer Faces application includes the following parts.
+
+        * A set of web pages in which components are laid out.
+        * A set of tags to add components to the web page.
+        * A set of managed beans, which are lightweight, container-managed objects (POJOs).
+                In a JavaServer Faces application, managed beans serve as backing beans, which define properties and functions for UI components on a page.
+        * A web deployment descriptor (web.xml file).
+        * Optionally, one or more application configuration resource files, such as a faces-config.xml file,
+                which can be used to define page navigation rules and configure beans and other custom objects, such as custom components.
+        * Optionally, a set of custom objects, which can include custom components, validators, converters, or listeners, created by the application developer.
+        * Optionally, a set of custom tags for representing custom objects on the page.
+
+
+- Benefits of the JavaServer Faces Technology
+
+        * Offers a clean separation between behavior and presentation for web applications.
+        * can map HTTP requests to component-specific event handling and manage components as stateful objects on the server.
+        * Allows you to build web applications that implement the finer-grained separation of behavior and presentation that is traditionally offered by
+                client-side UI architectures.
+        * Leverage familiar component and web-tier concepts without limiting you to a particular scripting technology or markup language.
+        * Code can be reused and extended for components through the templating and composite component features.
+        * You can use annotations to automatically register the managed bean as a resource available for JavaServer Faces applications.
+                In addition, implicit navigation rules allow developers to quickly configure page navigation.
+                These features reduce the manual configuration process for applications.
+        * Most important, JavaServer Faces technology provides a rich architecture for:
+            > managing component state,
+            > processing component data,
+            > validating user input, and
+            > handling events.
+
+
+- The lifecycle of a JavaServer Faces application starts and ends with the following activity:
+        The client makes a request for the web page, and the server responds with the page.
+        The lifecycle consists of two main phases: Execute and Render.
+
+        * During the Execute phase, several actions can take place.
+
+            > The application view is built or restored.
+            > The request parameter values are applied.
+            > Conversions and validations are performed for component values.
+            > Managed beans are updated with component values.
+            > Application logic is invoked.
+
+        * In the Render phase, the requested view is rendered as a response to the client.
+                Rendering is typically the process of generating output, such as HTML or XHTML, that can be read by the client, usually a browser.
+
+
+- User Interface Component Model
+
+        * JavaServer Faces technology provides a rich, flexible component architecture that includes the following:
+
+            > A set of javax.faces.component.UIComponent classes for specifying the state and behavior of UI components
+            > A rendering model that defines how to render the components in various ways
+            > A conversion model that defines how to register data converters onto a component
+            > An event and listener model that defines how to handle component events
+            > A validation model that defines how to register validators onto a component
+
+
+- Navigation Model
+
+        * In JavaServer Faces technology, navigation is a set of rules for choosing the next page or view to be displayed after an application action,
+                such as when a button or link is clicked.
+
+        * Navigation can be implicit or user-defined.
+            Implicit navigation comes into play when user-defined navigation rules are not configured in the application configuration resource files.
+
+        * User-defined navigation is handled as follows.
+
+            > Define the rules in the application configuration resource file.
+            > Refer to an outcome String from the button or link component's action attribute.
+                    This outcome String is used by the JavaServer Faces implementation to select the navigation rule.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

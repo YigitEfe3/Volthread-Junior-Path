@@ -1,0 +1,40 @@
+
+
+                                              EXPRESSION LANGUAGE
+
+- Provides an important mechanism for enabling the presentation layer (web pages) to communicate with the application logic (managed beans).
+
+- The EL allows page authors to use simple expressions to dynamically access data from JavaBeans components.
+
+- EL provides a way to use simple expressions to perform the following tasks:
+
+        * Dynamically read application data stored in JavaBeans components, various data structures, and implicit objects
+        * Dynamically write data, such as user input into forms, to JavaBeans components
+        * Invoke arbitrary static and public methods
+        * Dynamically perform arithmetic, boolean, and string operations
+        * Dynamically construct collection objects and perform operations on collections
+
+
+- The EL supports both immediate and deferred evaluation of expressions.
+
+        * Immediate evaluation means that the expression is evaluated and the result returned as soon as the page is first rendered.
+        * Deferred evaluation means that the technology using the expression language can use its own machinery to evaluate the expression
+                sometime later during the page's lifecycle, whenever it is appropriate to do so.
+
+
+- Immediate Evaluation
+
+        * All expressions using the ${} syntax are evaluated immediately.
+        * The JavaServer Faces implementation evaluates the expression ${catalog.bookQuantity}, converts it, and passes the returned value to the tag handler.
+                The value is updated on the page.
+
+- Deferred Evaluation
+
+        * Deferred evaluation expressions take the form #{expr} and can be evaluated at other phases of a page lifecycle as defined by
+                whatever technology is using the expression.
+
+        * Deferred evaluation expressions can be
+
+            > Value expressions that can be used to both read and write data
+            > Method expressions
+

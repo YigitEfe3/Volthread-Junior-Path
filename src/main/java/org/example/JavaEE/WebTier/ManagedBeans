@@ -1,0 +1,141 @@
+
+
+                                             MANAGED BEANS
+
+CREATING A MANAGED BEAN
+
+    - A managed bean is created with a constructor with no arguments,
+                                     a set of properties, and
+                                     a set of methods that perform functions for a component.
+
+    - Each of the managed bean properties can be bound to one of the following:
+
+        * A component value
+        * A component instance
+        * A converter instance
+        * A listener instance
+        * A validator instance
+
+        These properties follow the conventions of JavaBeans components.
+
+
+    - The most common functions that managed bean methods perform include the following:
+
+        * Validating a component's data
+        * Handling an event fired by a component
+        * Performing processing to determine the next page to which the application must navigate
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+WRITING MANAGED BEAN METHODS       //TODO Managed Bean Method (see Converters,ListenersAndValidators)
+
+    - Methods of a managed bean can perform several application-specific functions for components on the page, including:
+
+        * Performing processing associated with navigation
+        * Handling action events
+        * Performing validation on the component's value
+        * Handling value-change events
+
+    - By using a managed bean to perform these functions, you eliminate the need to implement the Validator interface to handle the validation or
+            one of the listener interfaces to handle events.
+
+    - By using a managed bean instead of a Validator implementation to perform validation,
+            you eliminate the need to create a custom tag for the Validator implementation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,194 @@
+
+
+                            CREATING CUSTOM UI COMPONENTS AND OTHER CUSTOM OBJECTS
+
+- JavaServer Faces technology offers a basic set of standard,
+        reusable UI components that enable quick and easy construction of user interfaces for web applications.
+
+WHEN TO USE A CUSTOM COMPONENT
+
+    - You need to create a custom component in the following situations:
+
+        * You need to add new behavior to a standard component, such as generating an additional type of event
+                (for example, notifying another part of the page that something changed in this component as a result of user interaction).
+        * You need to take a different action in the request processing of the value of a component from
+                what is available in any of the existing standard components.
+        * You want to take advantage of an HTML capability offered by your target browser,
+                but none of the standard JavaServer Faces components take advantage of the capability in the way you want, if at all.
+        * You need to render to a non-HTML client that requires extra components not supported by HTML.
+
+
+    - You do not need to create a custom component in the following situations:
+
+        * You need to aggregate components to create a new component that has its own unique behavior.
+                In this situation, you can use a composite component to combine existing standard components.
+        * You simply need to manipulate data on the component or add application-specific functionality to it.
+        * You need to convert a component's data to a type not supported by its renderer.
+        * You need to perform validation on the component data.
+        * You need to register event listeners on components.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+WHEN TO USE A CUSTOM RENDERER
+
+    - A renderer, which generates the markup to display a component on a web page, allows you to separate the semantics of a component from its appearance.
+
+    - If you are creating a custom component, you need to ensure, among other things, that your component class performs these operations that are
+            central to rendering the component:
+
+        * Decoding: Converting the incoming request parameters to the local value of the component
+        * Encoding: Converting the current local value of the component into the corresponding markup that represents it in the response
+
+        The JavaServer Faces specification supports two programming models for handling encoding and decoding.
+
+        * Direct implementation: The component class itself implements the decoding and encoding.
+        * Delegated implementation: The component class delegates the implementation of encoding and decoding to a separate renderer.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+STEPS FOR CREATING A CUSTOM COMPONENT
+
+    - You can apply the following steps while developing your own custom component.
+
+        1-) Create a custom component class that does the following:
+
+            a. Overrides the getFamily method to return the component family, which is used to look up renderers that can render the component
+
+            b. Includes the rendering code or delegates it to a renderer (explained in Step 2)
+
+            c. Enables component attributes to accept expressions
+
+            d. Queues an event on the component if the component generates events
+
+            e. Saves and restores the component state
+
+        2-) Delegate rendering to a renderer if your component does not handle the rendering. To do this:
+
+            a. Create a custom renderer class by extending javax.faces.render.Renderer.
+
+            b. Register the renderer to a render kit.
+
+        3-) Register the component.
+
+        4-) Create an event handler if your component generates events.
+
+        5-) Create a tag library descriptor (TLD) that defines the custom tag.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+CREATING CUSTOM COMPONENT CLASSES
+
+    - A component class defines the state and behavior of a UI component.
+            The state information includes the component's type, identifier, and local value. The behavior defined by the component class includes the following:
+
+        * Decoding (converting the request parameter to the component's local value)
+        * Encoding (converting the local value into the corresponding markup)
+        * Saving the state of the component
+        * Updating the bean value with the local value
+        * Processing validation on the local value
+        * Queueing events
+
+    - Your custom component class must either extend UIComponentBase directly or extend a class representing one of the standard components.
+
+    -
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,122 @@
+
+
+                                                COMPOSITE COMPONENT
+
+- A composite component is a special type of JavaServer Faces template that acts as a component.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+ATTRIBUTES OF A COMPOSITE COMPONENT
+
+    - You define an attribute of a composite component by using the composite:attribute tag.
+
+    - The following code snippet defines a composite component attribute and assigns it a default value:
+
+              <composite:attribute name="username" default="admin"/>
+
+      The following code snippet uses the method-signature element:
+
+              <composite:attribute name="myaction"
+                                   method-signature="java.lang.String action()"/>
+
+      The following code snippet uses the type element:
+
+              <composite:attribute name="dateofjoining" type="java.util.Date"/>
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+INVOKING A MANAGED BEAN
+
+    - To enable a composite component to handle server-side data, you can invoke a managed bean in one of the following ways.
+
+        * Pass the reference of the managed bean to the composite component.
+        * Directly use the properties of the managed bean.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+VALIDATING COMPOSITE COMPONENT VALUES
+
+    - JavaServer Faces provides the following tags for validating values of input components.
+            These tags can be used with the composite:valueHolder or the composite:editableValueHolder tag.
+
+        * f:validateBean
+        * f:validateRegex
+        * f:validateRequired
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

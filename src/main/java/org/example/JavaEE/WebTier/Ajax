@@ -1,0 +1,294 @@
+
+
+                                      AJAX (Asynchronous JavaScript and XML)
+
+- JavaScript is a dynamic scripting language for web applications.
+        It allows users to add enhanced functionality to user interfaces and allows web pages to interact with clients asynchronously.
+
+- JavaScript runs mainly on the client side (as in a browser) and thereby reduces server access by clients.
+
+- Ajax enables asynchronous and partial updating of web applications.
+        Such functionality allows for highly responsive web pages that are rendered in near real time.
+
+- Ajax-based web applications can access server and process information and can also retrieve data without interfering with the display and
+        rendering of the current web page on a client (such as a browser).
+
+- Some of the advantages of using Ajax are as follows:
+
+    * Form data validation in real time, eliminating the need to submit the form for verification
+    * Enhanced functionality for web pages, such as user name and password prompts
+    * Partial update of the web content, avoiding complete page reloads
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+AJAX WITH JAVASERVER FACES TECHNOLOGY
+
+    - Ajax functionality can be added to a JavaServer Faces application in one of the following ways:
+
+        * Adding the required JavaScript code to an application
+        * Using the built-in Ajax resource library
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+AJAX WITH FACELETS
+
+    - The built-in Ajax resource can be used in one of the following ways:
+
+        * By using the f:ajax tag along with another standard component in a Facelets application.
+                    This method adds Ajax functionality to any UI component without additional coding and configuration.
+        * By using the JavaScript API method jsf.ajax.request() directly within the Facelets application.
+                    This method provides direct access to Ajax methods and allows customized control of component behavior.
+
+    - Using the f:ajax tag
+
+        * <h:inputText value="#{bean.message}">
+              <f:ajax />
+          </h:inputText>
+
+          This example enables Ajax but not defines the other attributes of the f:ajax tag.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+SENDING AN AJAX REQUEST
+
+    - To activate Ajax functionality, the web application must create an Ajax request and send it to the server.
+            The server then processes the request.
+
+    - event Attribute
+
+        * <h:commandButton id="submit" value="Submit">
+              <f:ajax event="click" />
+          </h:commandButton>
+          <h:outputText id="result" value="#{userNumberBean.response}" />
+
+          This example uses an ajax tag to create an event called click (mouse click on the button).
+
+
+    - execute Attribute
+
+        * <h:inputText id="userNo"
+                       title="Type a number from 0 to 10:"
+                       value="#{userNumberBean.userNumber}">
+              ...
+          </h:inputText>
+          <h:commandButton id="submit" value="Submit">
+              <f:ajax event="click" execute="userNo" />
+          </h:commandButton>
+
+          This example uses an ajax tag to create an execution, the userNumber method on the userNumberBean in the userNo component will execute when the user
+                clicks the submit button.
+
+
+    - listener Attribute
+
+        * <f:ajax event="change" render="total"
+                  listener="#{reservationBean.calculateTotal}"/>
+
+          This example uses an ajax tag to listen to the total and invoke the calculateTotal method on the reservationBean when it changes.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+MONITORING EVENTS ON THE CLIENT AND HANDLING ERRORS.
+
+    - Monitoring Events
+
+        * To monitor ongoing Ajax requests, use the onevent attribute of the f:ajax tag.
+        * The value of this attribute is the name of a JavaScript function.
+        * <f:ajax event="click" render="statusmessage" onevent="monitormyajaxevent"/>
+
+
+    - Handling Errors
+
+        * JavaServer Faces handles Ajax errors through use of the onerror attribute of the f:ajax tag.
+        * The value of this attribute is the name of a JavaScript function.
+        * <f:ajax event="click" render="errormessage" onerror="handlemyajaxerror"/>
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+RECEIVING AN AJAX RESPONSE
+
+    - After the application sends an Ajax request, it is processed on the server side, and a response is sent back to the client.
+
+    - The handling of the response is defined by the render attribute of the f:ajax tag.
+
+    - Similar to the execute attribute, the render attribute defines which sections of the page will be updated.
+            The value of a render attribute can be one or more component id values.
+
+    - <h:commandButton id="submit" value="Submit">
+          <f:ajax execute="userNo" render="result" />
+      </h:commandButton>
+      <h:outputText id="result" value="#{userNumberBean.response}" />
+
+      The handling of the response is defined by the render attribute of the f:ajax tag.
+      The render attribute identifies an output text component to display when the button is clicked.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+AJAX REQUEST LIFECYCLE
+
+    - client ----> PartialViewContext ----> execute ----> render ----> client
+
+    - PartialViewContext: the state associated with the request is captured by the PartialViewContext object,
+            this object allows for the processing and rendering of the components
+    - execute: the components with the execute attribute are processed and run through their own JSF life cycles.
+    - render: the segments of the component tree that have the render attribute are rendered during the render response phase.
+            The components and their children are then rendered and packaged up and then sent back to the client as a response.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+GROUPING OF COMPONENTS
+
+    - <f:ajax>
+          <h:form>
+              <h:inputText id="input1" value="#{user.name}"/>
+              <h:commandButton id="Submit"/>
+          </h:form>
+      </f:ajax>
+
+      This example groups the components in an f:ajax tag, but does not associate them with ant Ajax event or render attributes.
+            Therefore, no action will take place in case of user input.
+
+    - <f:ajax event="click" render="@all">
+          <h:form>
+              <h:inputText id="input1" value="#{user.name}"/>
+              <h:commandButton id="Submit"/>
+          </h:form>
+      </f:ajax>
+
+      This example associates the components with an event and a render attribute.
+            When the user clicks either component, the updated results will be displayed for all components.
+
+    - <f:ajax event="click" render="@all">
+          <h:form>
+              <h:inputText id="input1" value="#{user.name}"/>
+              <h:commandButton id="Submit">
+                  <f:ajax event="mouseover"/>
+              </h:commandButton>
+          </h:form>
+      </f:ajax>
+
+      This example adds another f:ajax tag to one of the components, making the Ajax functionality cumulative.
+            Now the button component will fire an action in case of a mouseover, in addition to the previous example.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+LOADING JAVASCRIPT AS A RESOURCE
+
+    - The JavaScript resource file bundled with JavaServer Faces technology is named jsf.js and is available in the javax.faces library.
+
+    - This resource library supports Ajax functionality in JavaServer Faces applications.
+
+    - In order to use a JavaScript resource directly with a UIComponent, you must explicitly load the resource in either of the following ways:
+
+        * By using the h:outputScript tag directly in a Facelets page
+        * By using the javax.faces.application.ResourceDependency annotation on a UIComponent Java class
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,362 @@
+
+
+                                                JSON PROCESSING
+
+- JSON is a data exchange format widely used in web services and other connected applications.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+JSON SYNTAX
+
+    - JSON defines only two data structures: objects and arrays.
+
+    - An object is a set of name-value pairs.
+
+    - An array is a list of values. JSON defines seven value types:
+
+        * string,
+        * number,
+        * object,
+        * array,
+        * true,
+        * false, and
+        * null.
+
+    - JSON has the following syntax:
+
+        * Objects are enclosed in braces ({}),
+                their name-value pairs are separated by a comma (,), and
+                the name and value in a pair are separated by a colon (:).
+
+            Names in an object are strings, whereas values may be of any of the seven value types, including another object or an array.
+
+        * Arrays are enclosed in brackets ([]), and
+                their values are separated by a comma (,).
+
+            Each value in an array may be of a different type, including another array or an object.
+
+        * When objects and arrays contain other objects or arrays, the data has a tree-like structure.
+
+
+    - Uses of JSON
+
+        * JSON is often used as a common format to serialize and deserialize data in applications that communicate with each other over the Internet.
+
+
+    - Generating and Parsing JSON Data
+
+        * For generating and parsing JSON data, there are two programming models:
+
+            > The object model creates a tree that represents the JSON data in memory. The tree can then be navigated, analyzed, or modified.
+                    This approach is the most flexible and allows for processing that requires access to the complete contents of the tree.
+                    However, it is often slower than the streaming model and requires more memory.
+
+            > The streaming model uses an event-based parser that reads JSON data one element at a time.
+                    The parser generates events and stops for processing when an object or an array begins or ends, when it finds a key, or when it finds a value.
+                    Each element can be processed or discarded by the application code, and then the parser proceeds to the next event.
+                    This approach is adequate for local processing, in which the processing of an element does not require information from the rest of the data.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+JSON PROCESSING IN THE JAVA EE PLATFORM
+
+    - Java EE provides an API to parse, transform, and query JSON data using the object model or the streaming model.
+
+    - The Java API for JSON Processing contains the following packages:
+
+        * The javax.json package contains
+                a reader interface,
+                a writer interface, and
+                a model builder interface for the object model.
+
+            This package also contains other utility classes and Java types for JSON elements.
+
+        * The javax.json.stream package contains
+        a parser interface and
+        a generator interface for the streaming model.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING THE OBJECT MODEL API
+
+    - This section describes four cases of the Object Model API
+
+    1-) Creating an Object Model from JSON Data
+
+                JsonReader reader = Json.createReader(new FileReader("jsondata.txt"));
+                JsonStructure jsonst = reader.read();
+
+        The object reference jsonst can be either of type JsonObject or of type JsonArray, depending on the contents of the file.
+                JsonObject and JsonArray are subtypes of JsonStructure.
+
+
+    2-) Creating an Object Model from Application Code
+
+                JsonObject model = Json.createObjectBuilder()
+                   .add("firstName", "Duke")
+                   .add("lastName", "Java")
+                   .add("age", 18)
+                   .add("streetAddress", "100 Internet Dr")
+                   .add("city", "JavaTown")
+                   .add("state", "JA")
+                   .add("postalCode", "12345")
+                   .add("phoneNumbers", Json.createArrayBuilder()
+                      .add(Json.createObjectBuilder()
+                         .add("type", "mobile")
+                         .add("number", "111-111-1111"))
+                      .add(Json.createObjectBuilder()
+                         .add("type", "home")
+                         .add("number", "222-222-2222")))
+                   .build();
+
+        The object reference model represents the top of the tree, which is created by nesting calls to the add methods and built by calling the build method.
+
+
+    3-) Navigating an Object Model
+
+                public static void navigateTree(JsonValue tree, String key) {
+                   if (key != null)
+                      System.out.print("Key " + key + ": ");
+                   switch(tree.getValueType()) {
+                      case OBJECT:
+                         System.out.println("OBJECT");
+                         JsonObject object = (JsonObject) tree;
+                         for (String name : object.keySet())
+                            navigateTree(object.get(name), name);
+                         break;
+                      case ARRAY:
+                         System.out.println("ARRAY");
+                         JsonArray array = (JsonArray) tree;
+                         for (JsonValue val : array)
+                            navigateTree(val, null);
+                         break;
+                      case STRING:
+                         JsonString st = (JsonString) tree;
+                         System.out.println("STRING " + st.getString());
+                         break;
+                      case NUMBER:
+                         JsonNumber num = (JsonNumber) tree;
+                         System.out.println("NUMBER " + num.toString());
+                         break;
+                      case TRUE:
+                      case FALSE:
+                      case NULL:
+                         System.out.println(tree.getValueType().toString());
+                         break;
+                   }
+                }
+
+        The navigateTree method takes two arguments: a JSON element and a key. The key is used only to help print the key-value pairs inside objects.
+        Elements in a tree are represented by the JsonValue type.
+
+
+    4-) Writing an Object Model to a Stream
+
+                StringWriter stWriter = new StringWriter();
+                JsonWriter jsonWriter = Json.createWriter(stWriter);
+                jsonWriter.writeObject(model);
+                jsonWriter.close();
+
+                String jsonData = stWriter.toString();
+                System.out.println(jsonData);
+
+        The Json.createWriter method takes an output stream as a parameter. The JsonWriter.writeObject method writes the object to the stream.
+        The JsonWriter.close method closes the underlying output stream.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING THE STREAMING API
+
+    - This section describes two use cases of the streaming API:
+
+        * Reading JSON data using a parser
+
+        * Writing JSON data using a generator
+
+
+    - Reading JSON Data Using a Parser
+
+                JsonParser parser = Json.createParser(new StringReader(jsonData));
+                while (parser.hasNext()) {
+                   JsonParser.Event event = parser.next();
+                   switch(event) {
+                      case START_ARRAY:
+                      case END_ARRAY:
+                      case START_OBJECT:
+                      case END_OBJECT:
+                      case VALUE_FALSE:
+                      case VALUE_NULL:
+                      case VALUE_TRUE:
+                         System.out.println(event.toString());
+                         break;
+                      case KEY_NAME:
+                         System.out.print(event.toString() + " " +
+                                          parser.getString() + " - ");
+                         break;
+                      case VALUE_STRING:
+                      case VALUE_NUMBER:
+                         System.out.println(event.toString() + " " +
+                                            parser.getString());
+                         break;
+                   }
+                }
+
+        This example consists of three steps.
+
+            * Obtain a parser instance by calling the Json.createParser static method.
+
+            * Iterate over the parser events with the JsonParser.hasNext and the JsonParser.next methods.
+
+            * Perform local processing for each element.
+
+    - Writing JSON Data Using a Generator
+
+                FileWriter writer = new FileWriter("test.txt");
+                JsonGenerator gen = Json.createGenerator(writer);
+                gen.writeStartObject()
+                   .write("firstName", "Duke")
+                   .write("lastName", "Java")
+                   .write("age", 18)
+                   .write("streetAddress", "100 Internet Dr")
+                   .write("city", "JavaTown")
+                   .write("state", "JA")
+                   .write("postalCode", "12345")
+                   .writeStartArray("phoneNumbers")
+                      .writeStartObject()
+                         .write("type", "mobile")
+                         .write("number", "111-111-1111")
+                      .writeEnd()
+                      .writeStartObject()
+                         .write("type", "home")
+                         .write("number", "222-222-2222")
+                      .writeEnd()
+                   .writeEnd()
+                .writeEnd();
+                gen.close();
+
+        This example obtains a JSON generator by calling the Json.createGenerator static method, which takes a writer or an output stream as a parameter.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+JSON IN JAVA EE RESTFUL WEB SERVICES
+
+    - Jersey, the reference implementation for JAX-RS included in GlassFish Server,
+            provides support for binding JSON data from RESTful resource methods to Java objects using JAXB
+
+    - However, JSON support is not part of JAX-RS or JAXB, so that procedure may not work for Java EE implementations other than GlassFish Server.
+
+    - The Java API for JSON Processing does not explicitly support JSON binding in Java.
+
+    - You can still use the Java API for JSON Processing with JAX-RS resource methods.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

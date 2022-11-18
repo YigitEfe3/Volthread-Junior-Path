@@ -1,0 +1,448 @@
+
+
+                                CONFIGURING JAVASERVER FACES APPLICATIONS
+
+- When you create large and complex applications, however, various additional configuration tasks are required. These tasks include the following:
+
+    * Registering managed beans with the application so that all parts of the application have access to them
+    * Configuring managed beans and model beans so that they are instantiated with the proper values when a page makes reference to them
+    * Defining navigation rules for each of the pages in the application so that the application has a smooth page flow, if nondefault navigation is needed
+    * Packaging the application to include all the pages, resources, and other files so that the application can be deployed on any compliant container
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING ANNOTATIONS TO CONFIGURE MANAGED BEANS
+
+    - Bean annotations can be used for configuring JavaServer Faces applications.
+
+    - The @Named (javax.inject.Named) annotation in a class, along with a scope annotation, automatically registers that class as a resource.
+            * A bean that uses these annotations is a CDI managed bean.
+
+    - Using Managed Bean Scopes
+
+        * You can use annotations to define the scope in which the bean will be stored. You can specify one of the following scopes for a bean class:
+
+        * Application: Application scope persists across all users' interactions with a web application.
+
+        * Session: Session scope persists across multiple HTTP requests in a web application.
+
+        * Flow: Flow scope persists during a user's interaction with a specific flow of a web application.
+
+        * Request: Request scope persist during a single HTTP in a web application.
+
+        * Dependent: Dependent scope indicates that the bean depends on some other bean.
+
+            > You may want to use @Dependent when a managed bean references another managed bean.
+                    The second bean should not be @Dependent if it is supposed to be create only when it is referenced
+            > If you define a bean as @Dependent, the bean is instantiated anew each time it is referenced, so it does not get saved in any scope.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+APPLICATION CONFIGURATION RESOURCE FILE
+
+    - An application configuration resource file is usually names faces-config.xml
+
+    - You need an application configuration resource file in the following cases:
+
+        * To specify configuration elements for your application that are not available through managed bean annotations,
+                such as localized messages and navigation rules
+
+        * To override managed bean annotations when the application is deployed
+
+    - The application configuration resource file must be valid against the XML schema located at http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd.
+
+    - Each file must include the following information, in the following order:
+
+        * The XML version number, usually with an encoding attribute
+            > <?xml version="1.0" encoding='UTF-8'?>
+
+        * A faces-config tag enclosing all the other declarations
+            > <faces-config version="2.2" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                            xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                            http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd">
+                  ...
+              </faces-config>
+
+    - You can have more than one application configuration resource file for an application.
+            The JavaServer Faces implementation finds the configuration file or files by looking for the following:
+
+        * A resource named /META-INF/faces-config.xml in any of the JAR files in the web application's /WEB-INF/lib/ directory and in parent class loaders.
+        * A context initialization parameter, javax.faces.application.CONFIG_FILES,
+                in your web deployment descriptor file that specifies one or more (comma-delimited) paths to multiple configuration files for your web application.
+        * A resource named faces-config.xml in the /WEB-INF/ directory of your application.
+
+
+    - Configuring Eager Application-Scoped Managed Beans
+
+        * To force an application-scoped bean to be instantiated and placed in the application scope as soon as the application is started and
+                before any request is made, the eager attribute of the managed bean should be set to true.
+
+
+    - Ordering od Application Configuration Resource Files
+
+        * Because JavaServer Faces technology allows the use of multiple application resource files stored in different locations,
+                the order in which they are loaded becomes important in certain situations (For example, when using application-level objects).
+
+        * Absolute ordering is defined by an absolute*ordering element in the file.
+
+            > <faces-config>
+                  <name>myJSF</name>
+                  <absolute-ordering>
+                      <name>A</name>
+                      <name>B</name>
+                      <name>C</name>
+                  </absolute-ordering>
+              </faces-config>
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING FACES FLOWS
+
+    - The Faces Flows feature allows you to create a set of pages with a scope, FlowScoped, that is greater than request scope but less than session scope.
+
+    - You could create a set of self-contained pages that could be transferred from one store to another as needed.
+            Faces Flows are somewhat analogous to subroutines in procedural programming, in the following ways.
+
+        * Like a subroutine, a flow has a well defined entry point, list of parameters, and return value.
+                However, unlike a subroutine, a flow can return multiple values.
+
+        * Like a subroutine, a flow has a scope, allowing information to be available only during the invocation of the flow.
+                Such information is not available outside the scope of the flow and does not consume any resources once the flow returns.
+
+        * Like a subroutine, a flow may call other flows before returning. The invocation of flows is maintained in a call stack:
+                a new flow causes a push onto the stack, and a return causes a pop.
+
+    - An application can have any number of flows.
+
+    - The data in a flow is scoped to that flow alone, but you can pass data from one flow to another by specifying parameters and calling the other flow.
+
+    - Flows can be nested.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+CONFIGURING MANAGED BEANS
+
+    - When a page references a managed bean for the first time, the JavaServer Faces implementation initializes it either based on a
+            @Named annotation and scope annotation in the bean class or according to its configuration in the application configuration resource file.
+
+    - Managed beans created in the application configuration resource file are JavaServer Faces managed beans, not CDI managed beans.
+
+    - With the managed bean creation facility, you can:
+
+        * Create beans in one centralized file that is available to the entire application, rather than conditionally instantiate beans throughout the application
+
+        * Customize a bean's properties without any additional code
+
+        * Customize a bean's property values directly from within the configuration file so that it is initialized with these values when it is created
+
+        * Using value elements, set a property of one managed bean to be the result of evaluating another value expression
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+REGISTERING APPLICATION MESSAGES
+
+    -Application messages can include any strings displayed to the user as well as custom error messages for your custom converters or validators.
+
+    - To make messages available at application startup time, do one of the following:
+
+        * Queue an individual message onto the javax.faces.context.FacesContext instance programmatically, as described in Using FacesMessage to Create a Message
+
+        * Register all the messages with your application using the application configuration resource file
+
+    - Referencing Error Messages
+
+        * A JavaServer Faces page uses the message or messages tags to access error messages, the error messages these tags access include:
+
+            > The standard error messages that accompany the standard converters and validators that ship with the API.
+
+            > Custom error messages contained in resource bundles registered with the application by the application architect using the
+                    resource-bundle element in the configuration file
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING DEFAULT VALIDATORS
+
+    - In addition to the validators you declare on the components,
+            you can also specify zero or more default validators in the application configuration resource file.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+REGISTERING A CUSTOM VALIDATOR
+
+    - If the application developer provides an implementation of the javax.faces.validator.Validator interface to perform validation,
+            you must register this custom validator either;
+
+        * by using the @FacesValidator annotation, or
+        * by using the validator XML element in the application configuration resource file.
+
+
+    - Attributes specified in a validator tag override any settings in the @FacesValidator annotation.
+
+    - The validator-id and validator-class elements are required subelements.
+
+    - The attribute element identifies an attribute associated with the Validator implementation.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+REGISTERING A CUSTOM CONVERTER
+
+    - As is the case with a custom validator, if the application developer creates a custom converter, you must register it with the application either;
+
+        * by using the @FacesConverter annotation, or
+        * by using the converter XML element in the application configuration resource file.
+
+
+    - Attributes specified in a converter tag override any settings in the @FacesConverter annotation.
+
+    - The converter-id and converter-class elements are required subelements.
+
+    - The converter-class element identifies the Converter implementation.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+CONFIGURING NAVIGATION RULES
+
+    - Navigation between different pages of a JavaServer Faces application, such as
+            choosing the next page to be displayed after a button or link component is clicked, is defined by a set of rules.
+
+    - Navigation rules can be implicit, or they can be explicitly defined in the application configuration resource file.
+
+    - After the proper navigation rule is selected, the choice of which page to access next from the current page depends on two factors:
+
+        * The action method invoked when the component was clicked
+
+        * The logical outcome referenced by the component's tag or returned from the action method
+
+    - Common Outcome Strings
+
+        * success:    Everything worked.                Go on to the next page.
+        * failure:    Something is wrong.               Go on to an error page.
+        * login:      The user needs to log in first.   Go on to the login page.
+        * no results: The search did not find anything. Go to the search page again.
+
+    - For example, the method might check whether the user name and password entered in the form match the user name and password on file.
+            If they match, the method returns the outcome success.
+            Otherwise, it returns the outcome failure
+
+    - <navigation-rule>
+          <from-view-id>/login.xhtml</from-view-id>
+          <navigation-case>
+              <from-action>#{LoginForm.login}</from-action>
+              <from-outcome>success</from-outcome>
+              <to-view-id>/storefront.xhtml</to-view-id>
+          </navigation-case>
+          <navigation-case>
+              <from-action>#{LoginForm.logon}</from-action>
+              <from-outcome>failure</from-outcome>
+              <to-view-id>/login.xhtml</to-view-id>
+          </navigation-case>
+      </navigation-rule>
+
+    - The navigation-case elements are checked against the outcome and the method expression in the following order.
+
+        * Cases specifying both a from-outcome value and a from-action value.
+                Both of these elements can be used if the action method returns different outcomes depending on the result of the processing it performs.
+
+        * Cases specifying only a from-outcome value.
+                The from-outcome element must match either the outcome defined by the action attribute or
+                the outcome returned by the method referred to by the UICommand component.
+
+        * Cases specifying only a from-action value. This value must match the action expression specified by the component tag.
+
+      When any of these cases is matched, the component tree defined by the to-view-id element will be selected for rendering.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+REGISTERING A CUSTOM RENDERER WITH A RENDER KIT
+
+    - When the application developer creates a custom renderer, you must register it using the appropriate render kit.
+
+    - You register the renderer either:
+        * by using the @FacesRenderer annotation, or
+        * by using the render-kit element of the application configuration resource file.
+
+    - Attributes specified in a renderer tag override any settings in the @FacesRenderer annotation.
+
+    - The component-family and renderer-type elements are used by a component to find renderers that can render it.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+REGISTERING A CUSTOM COMPONENT
+
+    - You use either:
+        * a @FacesComponent annotation, or
+        * the component element of the application configuration resource file.
+
+    - Attributes specified in a component tag override any settings in the @FacesComponent annotation.
+
+    - The component-type element indicates the name under which the component should be registered.
+
+    - The component-class element indicates the fully qualified class name of the component.
+
+    - If the custom component can include facets, you can configure the facets in the component configuration using facet elements,
+            which are allowed after the component-class elements.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+BASIC REQUIREMENTS OF A JAVASERVER FACES APPLICATION
+
+    - In addition to configuring your application, you must satisfy other requirements of JavaServer Faces applications, including
+            properly packaging all the necessary files and
+            providing a deployment descriptor.
+
+    - JavaServer Faces applications can be packaged in a WAR file, which must conform to specific requirements to execute across different containers.
+
+    - At a minimum, a WAR file for a JavaServer Faces application may contain the following:
+
+        * A web application deployment descriptor, called web.xml, to configure resources required by a web application (required)
+
+        * A specific set of JAR files containing essential classes (optional)
+
+        * A set of application classes, JavaServer Faces pages, and other required resources, such as image files
+
+    - A WAR file may also contain:
+
+        * An application configuration resource file, which configures application resources
+
+        * A set of tag library descriptor files
+
+
+    - Configuring an Application with a Web deployment Descriptor
+
+        * The deployment descriptor for a JavaServer Faces application must specify certain configurations, including the following:
+
+            > The servlet used to process JavaServer Faces requests
+
+            > The servlet mapping for the processing servlet
+
+            > The path to the configuration resource file, if it exists and is not located in a default location
+
+
+        * The deployment descriptor can also include other, optional configurations, such as those that
+
+            > Specify where component state is saved
+
+            > Encrypt state saved on the client
+
+            > Compress state saved on the client
+
+            > Restrict access to pages containing JavaServer Faces tags
+
+            > Turn on XML validation
+
+            > Specify the Project Stage
+
+            > Verify custom objects
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
