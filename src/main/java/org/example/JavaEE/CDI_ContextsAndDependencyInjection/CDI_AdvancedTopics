@@ -1,0 +1,260 @@
+
+
+                            CONTEXTS AND DEPENDENCY INJECTION: ADVANCED TOPICS
+
+PACKAGING CDI APPLICATIONS
+
+    - When you deploy a Java EE application, CDI looks for beans inside bean archives.
+
+    - A bean archive is any module that contains beans that the CDI runtime can manage and inject.
+
+    - An explicit bean archive is an archive that contains a beans.xml deployment descriptor,
+            which can be an empty file, contain no version number, or
+            contain the version number 1.1 with the bean-discovery-mode attribute set to all.
+
+    - An implicit bean archive is an archive that contains some beans annotated with a scope type,
+                                                  contains no beans.xml deployment descriptor, or
+                                                  contains a beans.xml deployment descriptor with the bean-discovery-mode attribute set to annotated.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING ALTERNATIVES IN CDI APPLICATIONS
+
+    - When you have more than one version of a bean that you use for different purposes,
+            you can choose between them during the development phase by injecting one qualifier or another.
+
+    - Instead of having to change the source code of your application, however, you can make the choice at deployment time by using alternatives.
+
+    - Alternatives are commonly used for purposes such as the following:
+
+        * To handle client-specific business logic that is determined at runtime
+
+        * To specify beans that are valid for a particular deployment scenario
+                (for example, when country-specific sales tax laws require country-specific sales tax business logic)
+
+        * To create dummy (mock) versions of beans to be used for testing
+
+    - To make a bean available for lookup, injection, or EL resolution using this mechanism,
+            give it a javax.enterprise.inject.Alternative annotation and then use the alternatives element to specify it in the beans.xml file.
+
+
+    - Using Specialization
+
+        * Specialization has a function similar to that of alternatives in that it allows you to substitute one bean for another.
+                However, you might want to make one bean override the other in all cases.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING PRODUCER METHODS, PRODUCER FIELDS, AND DISPOSER METHODS IN CDI APPLICATIONS
+
+    - Using Producer Methods
+
+        * A producer method generates an object that can then be injected.
+
+        * Typically, you use producer methods in the following situations:
+
+            > When you want to inject an object that is not itself a bean
+
+            > When the concrete type of the object to be injected may vary at runtime
+
+            > When the object requires some custom initialization that the bean constructor does not perform
+
+        *       @Produces
+                @Chosen
+                @RequestScoped
+                public Coder getCoder() { ... }
+
+
+    - Using Producer Field to Generate Resources
+
+        * A producer field is a simpler alternative to a producer method; it is a field of a bean that generates an object.
+
+        * It can be used instead of a simple getter method.
+
+        * Producer fields are particularly useful for declaring Java EE resources such as data sources, JMS resources, and web service references.
+
+        *       @Produces
+                @UserDatabase
+                @PersistenceContext
+                private EntityManager em;
+
+
+    - Using A Disposer Method
+
+        * You can use a producer method or a producer field to generate an object that needs to be removed when its work is completed.
+
+        * If you do, you need a corresponding disposer method, annotated with a @Disposes annotation.
+
+        *       public void close(@Disposes @UserDatabase EntityManager em) {
+                    em.close();
+                }
+
+        * The disposer method is called automatically when the context ends, the parameter in the close method receives the object produced by the producer field.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING PREDEFINED BEANS IN CDI APPLICATIONS
+
+    - Java EE provides predefined beans that implement the following interfaces:
+
+        * javax.transaction.UserTransaction:  A Java Transaction API (JTA) user transaction.
+
+        * java.security.Principal:  The abstract notion of a principal, which represents any entity, such as an individual, a corporation, or a login ID.
+                                    Whenever the injected principal is accessed, it always represents the identity of the current caller.
+
+        * javax.validation.Validator:  A validator for bean instances. The bean that implements this interface enables a Validator
+                                       object for the default bean validation object ValidatorFactory to be injected.
+
+        * javax.validation.ValidatorFactory:  A factory class for returning initialized Validator instances.
+                                              The bean that implements this interface enables the default bean validation ValidatorFactory object to be injected.
+
+        * javax.servlet.http.HttpServletRequest:  An HTTP request from a client.
+                                                  The bean that implements this interface enables a servlet to obtain all the details of a request.
+
+        * javax.servlet.http.HttpSession:  An HTTP session between a client and a server. The bean that implements this interface enables
+                                           a servlet to access information about a session and to bind objects to a session.
+
+        * javax.servlet.ServletContext: A context object that servlets can use to communicate with the servlet container.
+
+    - Predefined beans are injected with dependent scope and the predefined default qualifier @Default.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING EVENTS IN CDI APPLICATIONS
+
+    - Events allow beans to communicate without any compile-time dependency.
+            One bean can define an event,
+            another bean can fire the event, and
+            yet another bean can handle the event.
+
+    - Defining Events
+
+        * An event consists of the following:
+
+            > The event object, a Java object
+
+            > Zero or more qualifier types, the event qualifiers
+
+        * Every event also has the default qualifier @Any.
+
+
+    - Handle Events Using Observer Methods
+
+        * An event handler uses an observer method to consume events.
+
+        * Each observer method takes as a parameter an event of a specific event type that is annotated with the
+                @Observes annotation and with any qualifiers for that event type.
+
+        * Observer methods can also be conditional or transactional:
+
+            > A conditional observer method is notified of an event only if an instance of the bean already exists in the current context.
+
+            > A transactional observer method is notified of an event during the before or after-completion phase of the transaction in which the event was fired.
+
+
+    - Firing Events
+
+        * To activate an event, call the javax.enterprise.event.Event.fire method.
+
+        * This method fires an event and notifies any observer methods.
+
+        * The fired event is then consumed by the observer methods.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING INTERCEPTORS IN CDI APPLICATIONS
+
+    - An interceptor is a class used to interpose in method invocations or lifecycle events that occur in an associated target class.
+
+    - The interceptor performs tasks, such as
+                                    logging or
+                                    auditing, that are separate from the business logic of the application and are repeated often within an application.
+
+    - Such tasks are often called cross-cutting tasks.
+
+    - Interceptors allow you to specify the code for these tasks in one place for easy maintenance.
+
+    - An interceptor class often contains a method annotated @AroundInvoke,
+            which specifies the tasks the interceptor will perform when intercepted methods are invoked.
+
+    - It can also contain
+            a method annotated @PostConstruct, @PreDestroy, @PrePassivate, or @PostActivate, to specify lifecycle callback interceptors, and
+            a method annotated @AroundTimeout, to specify EJB timeout interceptors.
+
+    - An interceptor class can contain more than one interceptor method, but it must have no more than one method of each type.
+
+    - Along with an interceptor, an application defines one or more interceptor binding types, annotations that associate an interceptor with target beans/methods.
+
+
+    -       @Inherited
+            @InterceptorBinding
+            @Retention(RUNTIME)
+            @Target({METHOD, TYPE})
+            public @interface Logged {
+            }
+
+
+    - Once an interceptor and binding type are defined, you can annotate beans and individual methods with the binding type to
+            specify that the interceptor is to be invoked either on all methods of the bean or on specific methods.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING DECORATORS IN CDI APPLICATION
+
+    - A decorator is a Java class that is annotated javax.decorator.Decorator and that has a corresponding decorators element in the beans.xml file.
+
+    - A decorator bean class must also have a delegate injection point, which is annotated javax.decorator.Delegate.
+
+    - This injection point can be a field, a constructor parameter, or an initializer method parameter of the decorator class.
+
+    - Decorators are outwardly similar to interceptors.
+            However, they actually perform tasks complementary to those performed by interceptors.
+
+    - Interceptors perform cross-cutting tasks associated with method invocation and with the lifecycles of beans, but cannot perform any business logic.
+            Decorators, on the other hand, do perform business logic by intercepting business methods of beans.
+
+    - This means that instead of being reusable for different kinds of applications, as are interceptors, their logic is specific to a particular application.
+
+    - If an application has both interceptors and decorators, the interceptors are invoked first. This means, in effect, that you cannot intercept a decorator.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING STEREOTYPES IN CDI APPLICATIONS
+
+    - A stereotype is a kind of annotation, applied to a bean, that incorporates other annotations.
+
+    - Stereotypes can be particularly useful in large applications in which you have a number of beans that perform similar functions.
+
+    - A stereotype is a kind of annotation that specifies the following:
+
+        * A default scope
+
+        * Zero or more interceptor bindings
+
+        * Optionally, a @Named annotation, guaranteeing default EL naming
+
+        * Optionally, an @Alternative annotation, specifying that all beans with this stereotype are alternatives
+
+
+    - A bean annotated with a particular stereotype will always use the specified annotations, so you do not have to apply the same annotations to many beans.
+
+
+    -           @RequestScoped
+                @Secure
+                @Transactional
+                @Named
+                @Stereotype
+                @Target(TYPE)
+                @Retention(RUNTIME)
+                public @interface Action { ... }
+
+        All beans annotated @Action will have request scope, use default EL naming, and have the interceptor bindings @Transactional and @Secure.
+
+

@@ -1,0 +1,403 @@
+
+
+                                        CONTEXTS AND DEPENDENCY INJECTION       (CDI)
+
+- CDI is a set of services that, used together, make it easy for developers to use enterprise beans along with JavaServer Faces technology in web applications.
+
+- CDI enables your objects to have their dependencies provided to them automatically, instead of creating them or receiving them as parameters.
+
+- Example:   @Inject private Message message;
+
+- CDI beans are classes that CDI can instantiate, manage, and inject automatically to satisfy the dependencies of other objects.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+OVERVIEW OF CDI
+
+    - The most fundamental services provided by CDI are as follows.
+
+        * Contexts: This service enables you to bind the lifecycle and interactions of stateful components to well-defined but extensible lifecycle contexts.
+
+        * Dependency injection: This service enables you to inject components into an application in a typesafe way and to choose at deployment time which
+                implementation of a particular interface to inject.
+
+
+    - In addition, CDI provides the following services:
+
+        * Integration with the Expression Language (EL), which allows any component to be used directly within a JSF or a JSP page
+
+        * The ability to decorate injected components
+
+        * The ability to associate interceptors with components using typesafe interceptor bindings
+
+        * An event-notification model
+
+        * A web conversation scope in addition to the three standard scopes (request, session, and application) defined by the Java Servlet specification
+
+        * A complete Service Provider Interface (SPI) that allows third-party frameworks to integrate cleanly in the Java EE 7 environment
+
+
+    - A major theme of CDI is loose coupling. CDI does the following:
+
+        * Decouples the server and the client by means of well-defined types and qualifiers, so that the server implementation may vary
+
+        * Decouples the lifecycles of collaborating components by
+
+            > Making components contextual, with automatic lifecycle management
+
+            > Allowing stateful components to interact like services, purely by message passing
+
+        * Completely decouples message producers from consumers, by means of events
+
+        * Decouples orthogonal concerns by means of Java EE interceptors
+
+
+    - Along with loose coupling, CDI provides strong typing by
+
+        * Eliminating lookup using string-based names for wiring and correlations so that the compiler will detect typing errors
+
+        * Allowing the use of declarative Java annotations to specify everything, largely eliminating the need for XML deployment descriptors,
+                and making it easy to provide tools that introspect the code and understand the dependency structure at development time
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+ABOUT BEANS
+
+    - CDI redefines the concept of a bean beyond its use in other Java technologies, such as the JavaBeans and EJB technologies.
+
+    - In CDI, a bean is a source of contextual objects that define application state and/or logic.
+
+    - More specifically, a bean has the following attributes:
+
+        * A (nonempty) set of bean types
+
+        * A (nonempty) set of qualifiers
+
+        * A scope
+
+        * Optionally, a bean EL name
+
+        * A set of interceptor bindings
+
+        * A bean implementation
+
+    - A bean type defines a client-visible type of the bean. Almost any Java type may be a bean type of a bean.
+
+        * A bean type may be an interface,
+                             a concrete class, or
+                             an abstract class and
+
+        * A bean type may be declared final or have final methods.
+
+        * A bean type may be a parameterized type with type parameters and type variables.
+
+        * A bean type may be an array type. Two array types are considered identical only if the element type is identical.
+
+        * A bean type may be a primitive type. Primitive types are considered to be identical to their corresponding wrapper types in java.lang.
+
+        * A bean type may be a raw type.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+ABOUT CDI MANAGED BEANS
+
+    - A managed bean is implemented by a Java class, which is called its bean class.
+
+    - A top-level Java class is a managed bean if it is defined to be a managed bean by any other Java EE technology specification,
+            such as the JSF specification, or if it meets all the following conditions.
+
+        * It is not a nonstatic inner class.
+
+        * It is a concrete class or is annotated @Decorator.
+
+        * It is not annotated with an EJB component-defining annotation or declared as an EJB bean class in ejb-jar.xml.
+
+        * It has an appropriate constructor. That is, one of the following is the case.
+
+            > The class has a constructor with no parameters.
+
+            > The class declares a constructor annotated @Inject.
+
+      No special declaration, such as an annotation, is required to define a managed bean.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+BEANS AS INJECTABLE OBJECTS
+
+    - Annotations have made it possible to inject resources and some other kinds of objects into container-managed objects.
+
+    - CDI makes it possible to inject more kinds of objects and to inject them into objects that are not container-managed.
+
+    - The following kinds of objects can be injected:
+
+        * (Almost) any Java class
+
+        * Session beans
+
+        * Java EE resources: data sources, Java Message Service topics, queues, connection factories, and the like
+
+        * Persistence contexts (Java Persistence API EntityManager objects)
+
+        * Producer fields
+
+        * Objects returned by producer methods
+
+        * Web service references
+
+        * Remote enterprise bean references
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING QUALIFIERS
+
+    - You can use qualifiers to provide various implementations of a particular bean type.
+
+    - A qualifier is an annotation that you apply to a bean.
+
+    - A qualifier type is a Java annotation defined as @Target({METHOD, FIELD, PARAMETER, TYPE}) and @Retention(RUNTIME).
+
+    - If you define a bean with no qualifier, the bean automatically has the qualifier @Default.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+INJECTING BEANS
+
+    - In order to use the beans you create, you inject them into yet another bean that can then be used by an application, such as a JSF application.
+
+    - Example:
+
+          import javax.inject.Inject;
+
+          public class Printer {
+
+              @Inject Greeting greeting;
+              ...
+          }
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING SCOPES
+
+    - For a web application to use a bean that injects another bean class, the bean needs to
+            be able to hold state over the duration of the user's interaction with the application. The way to define this state is to give the bean a scope.
+
+    - Scopes
+
+        * @RequestScoped
+        * @SessionScoped
+        * @ApplicationScoped
+        * @Dependent
+        * @ConversationScoped
+
+
+    - All predefined scopes except @Dependent are contextual scopes.
+
+    - Beans that use session, application, or conversation scope must be serializable, but beans that use request scope do not have to be serializable.
+
+
+    - The CDI container ensures that the objects are created and injected at the correct time as determined by the scope that is specified for these objects.
+
+    - Java EE components, such as servlets and enterprise beans, and JavaBeans components do not by definition have a well-defined scope.
+            These components are one of the following:
+
+        * Singletons, such as Enterprise JavaBeans singleton beans, whose state is shared among all clients
+
+        * Stateless objects, such as servlets and stateless session beans, which do not contain client-visible state
+
+        * Objects that must be explicitly created and destroyed by their client,
+                such as JavaBeans components and stateful session beans, whose state is shared by explicit reference passing between clients
+
+
+    - If, however, you create a Java EE component that is a managed bean, it becomes a scoped object, which exists in a well-defined lifecycle context.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+GIVING BEANS EL NAMES
+
+    - To make a bean accessible through the EL, use the @Named built-in qualifier:
+
+              @Named
+              @RequestScoped
+              public class Printer {
+
+                  @Inject @Informal Greeting greeting;
+                  ...
+              }
+
+      The @Named qualifier allows you to access the bean by using the bean name, with the first letter in lowercase.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+ADDING GETTER AND SETTER METHODS
+
+    - To make the state of the managed bean accessible, you need to add setter and getter methods for that state.
+
+    - Once the setter and getter methods have been added, the bean is complete.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING A MANAGED BEAN IN A FACELETS PAGE
+
+    - To use the managed bean in a Facelets page, you typically create a form that uses user interface elements to call its methods and display their results.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+INJECTING OBJECTS BY USING PRODUCER METHODS
+
+    - Producer methods provide a way to inject objects that are not beans,
+            objects whose values may vary at runtime, and objects that require custom initialization.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+CONFIGURING A CDI APPLICATION
+
+    - When your beans are annotated with a scope type, the server recognizes the application as a bean archive and no additional configuration is required.
+
+    - CDI uses an optional deployment descriptor named beans.xml, used in addition to annotation settings in CDI classes.
+
+    - The settings in beans.xml override the annotation settings if there is a conflict.
+
+    - For a web application, the beans.xml deployment descriptor, if present, must be in the WEB-INF directory.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING @POSTCONSTRUCT AND @PRECONSTRUCT ANNOTATIONS WITH CDI MANAGED BEANS
+
+    - To Initialize A Managed Bean Using the @PostConstruct Annotation
+
+        * Initializing a managed bean specifies the lifecycle callback method that the CDI framework should call after dependency injection but before
+                the class is put into service.
+
+            > In the managed bean class or any of its superclasses, define a method that performs the initialization that you require.
+
+            > Annotate the declaration of the method with the javax.annotation.PostConstruct annotation.
+
+          When the managed bean is injected into a component, CDI calls the method after all injection has occurred and after all initializers have been called.
+
+    - To Prepare For The Destruction of a Managed Bean Using the @PreDestroy Annotation
+
+        * Preparing for the destruction of a managed bean specifies the lifecycle callback method that signals that
+                an application component is about to be destroyed by the container.
+
+            > In the managed bean class or any of its superclasses, prepare for the destruction of the managed bean.
+                    In this method, perform any cleanup that is required before the bean is destroyed, such as releasing a resource that the bean has been holding.
+
+            > Annotate the declaration of the method with the javax.annotation.PreDestroy annotation.
+
+          CDI calls this method before starting to destroy the bean.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
