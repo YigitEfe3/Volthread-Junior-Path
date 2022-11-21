@@ -1,0 +1,105 @@
+
+
+                                                    BEAN VALIDATION
+
+- Validating input received from the user to maintain data integrity is an important part of application logic.
+
+- Validation of data can take place at different layers in even the simplest of applications.
+
+- The Java API for JavaBean Validation provides a facility for validating objects, object members, methods, and constructors.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING BEAN VALIDATION CONSTRAINTS
+
+    - The Bean Validation model is supported by constraints in the form of annotations placed on a field, method, or class of a JavaBeans component,
+            such as a managed bean.
+
+    - Built-In Bean Validation Constraints
+
+            * @AssertFalse                      * @Max
+            * @AssertTrue                       * @Min
+            * @DecimalMax                       * @NotNull
+            * @DecimalMin                       * @Null
+            * @Digits                           * @Past
+            * @Future                           * @Pattern
+            * @Size
+
+
+    - Any managed bean that contains Bean Validation annotations automatically gets validation constraints placed on the fields on a JSF application's web pages.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+VALIDATING NULL AND EMPTY STRINGS
+
+    - The Java programming language distinguishes between null and empty strings.
+
+    - An empty string is a string instance of zero length and has the value of "", whereas
+      a null string has no value at all.
+
+    - In order for the Bean Validation model to work as intended, you must set the context parameter
+            javax.faces.INTERPRET_EMPTY_STRING_SUBMITTED_VALUES_AS_NULL to true in the web deployment descriptor file, web.xml:
+
+        <context-param>
+            <param-name>
+                javax.faces.INTERPRET_EMPTY_STRING_SUBMITTED_VALUES_AS_NULL
+            </param-name>
+            <param-value>true</param-value>
+        </context-param>
+
+        This parameter enables the JavaServer Faces implementation to treat empty strings as null.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+VALIDATING CONSTRUCTORS AND METHODS
+
+    - Bean Validation constraints may be placed on the parameters of nonstatic methods and constructors and on the return values of nonstatic methods.
+
+    - Static methods and constructors will not be validated.
+
+    - Constraints for a parameter is shown in the example below:
+
+            public void setSalary( @NotNull  @Digits(integer=6, fraction=2) BigDecimal salary,
+                                   @NotNull  @ValidCurrency                 String currencyType)  { ... }
+
+
+    - Cross-Parameter Constraints
+
+        * Constraints that apply to multiple parameters are called cross-parameter constraints, and may be applied at the method or constructor level.
+
+                @ConsistentPhoneParameters
+                @NotNull
+                public Employee (String name, String officePhone, String mobilePhone) { ... }
+
+            In this example, the first constraint validates the phone numbers, and the second constraint applies to all parameters.
+
+
+        * Cross-parameter constraint annotations are applied directly to the method or constructor.
+
+        * Return value constraints are also applied directly to the method or constructor.
+
+
+    - Identifying Parameter Constraint Violations
+
+        * If a ConstraintViolationException occurs during a method call,
+                the Bean Validation runtime returns a parameter index to identify which parameter caused the constraint violation.
+
+        * Adding Constraints to Method Return Values
+
+            > To validate the return value for a method, you can apply constraints directly to the method or constructor declaration.
+
+                  @NotNull
+                  public Employee getEmployee() { ... }
+
+            > Cross-parameter constraints are also applied at the method level.
+                    Custom constraints that could be applied to both the return value and the method parameters have an ambiguous constraint target.
+                    To avoid this ambiguity, add a validationAppliesTo element to the constraint annotation definition with the default set to either
+                            ConstraintTarget.RETURN_VALUE or
+                            ConstraintTarget.PARAMETERS to explicitly set the target of the validation constraint.
+
+                  @Manager(validationAppliesTo=ConstraintTarget.RETURN_VALUE)
+                  public Employee getManager(Employee employee) { ... }
+
