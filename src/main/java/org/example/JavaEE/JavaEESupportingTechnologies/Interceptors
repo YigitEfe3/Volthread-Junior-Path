@@ -1,0 +1,122 @@
+
+
+                                            USING JAVA EE INTERCEPTORS
+
+- Interceptors are used in conjunction with Java EE managed classes to allow developers to invoke interceptor methods on an associated target class,
+                        in conjunction with method invocations or lifecycle events.
+
+- Common uses of interceptors are logging,
+                                  auditing, and
+                                  profiling.
+
+- You can use interceptors with session beans, message-driven beans, and CDI managed beans.
+        In all of these cases, the interceptor target class is the bean class.
+
+- An interceptor can be defined within a target class as an interceptor method, or in an associated class called an interceptor class.
+
+- Interceptor classes contain methods that are invoked in conjunction with the methods or lifecycle events of the target class.
+
+- Interceptor classes and methods are defined using metadata annotations, or
+        in the deployment descriptor of the application that contains the interceptors and target classes.
+
+
+- Interceptor Classes
+
+    * Interceptor classes may be designated with the optional javax.interceptor.Interceptor annotation, but are not required to be.
+
+    * An interceptor class must have a public, no-argument constructor.
+
+    * The target class can have any number of interceptor classes associated with it.
+            The order in which the interceptor classes are invoked is determined by the order in which they are defined in the @Interceptors annotation.
+            However, this order can be overridden in the deployment descriptor.
+
+
+- Interceptor Lifecycle
+
+    * Interceptor classes have the same lifecycle as their associated target class.
+
+    * When a target class instance is created, an interceptor class instance is also created for each declared interceptor class in the target class.
+
+    * If the target class declares multiple interceptor classes, an instance of each class is created when the target class instance is created.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING INTERCEPTORS
+
+    - To define an interceptor, use one of the interceptor metadata annotations within the target class, or in a separate interceptor class.
+
+    - If you are using interceptor classes, use the @Interceptors annotation to declare one or more interceptors at the class or method level of the target class.
+
+                @Stateless
+                @Interceptors({PrimaryInterceptor.class, SecondaryInterceptor.class})
+                public class OrderBean { ... }
+
+    - Intercepting Method Invocations
+
+        * Use the @AroundInvoke annotation to designate interceptor methods for managed object methods.
+
+        * Only one around-invoke interceptor method per class is allowed.
+
+        * Around-invoke interceptor methods can have public, private, protected, or package-level access, and must not be declared static or final.
+
+            > Use the @Interceptors annotation to declare multiple interceptors for a target method or class.
+
+
+    - Intercepting Lifecycle Callback Events
+
+        * Interceptors for lifecycle callback events (aroundconstruct, postconstruct, and predestroy) may be defined in the target or interceptor classes.
+
+        * For example:          @PostConstruct
+                                void initialize() { ... }
+
+
+    - Intercepting Timeout Events
+
+        * You can define interceptors for EJB timer service timeout methods by using the @AroundTimeout annotation on methods in the target or interceptor classes.
+
+        * For example:                @AroundTimeout
+                                      protected void timeoutInterceptorMethod(InvocationContext ctx) { ... }
+
+
+    - Binding Interceptors to Components
+
+        * Interceptor binding types are annotations that may be applied to components to associate them with a particular interceptor.
+
+        * Interceptor binding types are typically custom runtime annotation types that specify the interceptor target.
+
+        * Use the javax.interceptor.InterceptorBinding annotation on the custom annotation definition and specify the target by using @Target,
+                setting one or more of TYPE (class-level interceptors),
+                                       METHOD (method-level interceptors),
+                                       CONSTRUCTOR (around-construct interceptors), or any other valid target.
+
+        * For example:              @InterceptorBinding
+                                    @Target({TYPE, METHOD})
+                                    @Retention(RUNTIME)
+                                    @Inherited
+                                    pubic @interface Logged { ... }
+
+
+    - Ordering Interceptors
+
+        * The order in which multiple interceptors are invoked is determined by the following rules.
+
+            > Default interceptors are defined in a deployment descriptor, and are invoked first.
+                    They may specify the invocation order or override the order specified using annotations.
+                    Default interceptors are invoked in the order in which they are defined in the deployment descriptor.
+
+            > The order in which the interceptor classes are listed in the @Interceptors annotation defines the order in which the interceptors are invoked.
+                    Any @Priority settings for interceptors listed within an @Interceptors annotation are ignored.
+
+            > If the interceptor class has superclasses, the interceptors defined on the superclasses are invoked first, starting with the most general superclass.
+
+            > Interceptor classes may set the priority of the interceptor methods by setting a value within a javax.annotation.Priority annotation.
+
+            > After the interceptors defined within interceptor classes have been invoked, the target class's constructor, around-invoke, or
+                    around-timeout interceptors are invoked in the same order as the interceptors within the @Interceptors annotation.
+
+            > If the target class has superclasses, any interceptors defined on the superclasses are invoked first, starting with the most general superclass.
+
+          The @Priority annotation requires an int value as an element. The lower the number, the higher the priority of the associated interceptor.
+
+

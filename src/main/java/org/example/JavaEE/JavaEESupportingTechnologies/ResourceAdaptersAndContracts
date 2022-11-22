@@ -1,0 +1,99 @@
+
+
+                                        RESOURCE ADAPTERS AND CONTRACTS
+
+WHAT IS A SOURCE ADAPTER?
+
+    - A resource adapter is a Java EE component that implements the Java EE Connector Architecture for a specific EIS.
+
+    - Examples of EISs include enterprise resource planning, mainframe transaction processing, and database systems.
+
+    - In a Java EE server, the Java Message Server and JavaMail also act as EISs that you access using resource adapters.
+
+    - Stored in a Resource Adapter Archive (RAR) file, a resource adapter can be deployed on any Java EE server, much like a Java EE application.
+            A RAR file may be contained in an Enterprise Archive (EAR) file, or it may exist as a separate file.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+METADATA ANNOTATIONS
+
+    - @Connector  : This annotation can be used by the resource adapter developer to specify a JavaBeans component as a resource adapter JavaBeans component.
+                    This annotation is used for providing metadata about the capabilities of the resource adapter.
+                    Optionally, you can provide a JavaBeans component implementing the ResourceAdapter interface
+
+
+    - @ConnectionDefinition   : This annotation defines a set of connection interfaces and classes pertaining to a particular connection type.
+
+
+    - @AdministeredObject   : This annotation designates a JavaBeans component as an administered object.
+
+
+    - @Activation   : This annotation contains configuration information pertaining to inbound connectivity from an EIS instance.
+
+
+    - @ConfigProperty   : This annotation can be used on JavaBeans components to provide additional configuration information
+                          that may be used by the deployer and resource adapter provider.
+
+
+    - @ConnectionFactoryDefinition   : This annotation is a resource definition annotation that is used to define a
+                                       connector connection factory and register it in JNDI under the name specified in the mandatory name annotation element.
+
+
+    -  @AdministeredObjectDefinition   : This annotation is a resource definition annotation that is used to define an
+                                         administered object and register it in JNDI under the name specified in the mandatory name annotation element.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+COMMON CLIENT INTERFACE     (CCI API)
+
+    - The CCI interfaces and classes are as follows.
+
+        * ConnectionFactory  : Provides an application component with a Connection instance to an EIS.
+
+        * Connection         : Represents the connection to the underlying EIS.
+
+        * ConnectionSpec     : Provides a means for an application component to pass connection-request-specific properties to the ConnectionFactory when
+                               making a connection request.
+
+        * Interaction        : Provides a means for an application component to execute EIS functions, such as database stored procedures.
+
+        * InteractionSpec    : Holds properties pertaining to an application component's interaction with an EIS.
+
+        * Record             : The superinterface for the various kinds of record instances. Record instances can be MappedRecord,
+                                                                                                                     IndexedRecord, or
+                                                                                                                     ResultSet instances
+
+        * RecordFactory      : Provides an application component with a Record instance.
+
+        * IndexedRecord      : Represents an ordered collection of Record instances based on the java.util.List interface.
+
+
+    - A client or application component that uses the CCI to interact with an underlying EIS does so in a prescribed manner.
+            The component must establish a connection to the EIS's resource manager, and it does so using the ConnectionFactory.
+            The Connection object represents the connection to the EIS and is used for subsequent interactions with the EIS.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING RESOURCE ADAPTERS WITH CDI
+
+    - Do not specify the following classes in the resource adapter as CDI managed beans (that is, do not inject them),
+            because the behavior of these classes as CDI managed beans has not been portably defined.
+
+                                              These beans are classes that are annotated with the javax.resource.spi.
+
+        * Resource adapter beans            : Connector annotation or are declared as corresponding elements in the resource adapter deployment descriptor, ra.xml.
+
+        * Managed connection factory beans  : ConnectorDefinition annotation or the javax.resource.spi.ConnectorDefinitions annotation or
+                                              are declared as corresponding elements in ra.xml.
+
+        * Activation specification beans    : Activation annotation or are declared as corresponding elements in ra.xml.
+
+        * Administered object beans         : AdministeredObject annotation or are declared as corresponding elements in ra.xml.
+
+
+    - Other types of classes in the resource adapter can be CDI managed beans and will behave in a portable manner.
+
+

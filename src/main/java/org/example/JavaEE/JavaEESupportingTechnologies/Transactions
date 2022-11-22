@@ -1,0 +1,171 @@
+
+
+                                                TRANSACTIONS
+
+- In a Java EE application, a transaction is a series of actions that must all complete successfully, or else all the changes in each action are backed out.
+
+- Transactions end in either a commit or a rollback.
+
+- The Java Transaction API (JTA) allows applications to access transactions in a manner that is independent of specific implementations.
+
+- JTA specifies standard Java interfaces between a transaction manager and the parties involved in a distributed transaction system:
+        the transactional application,
+        the Java EE server, and
+        the manager that controls access to the shared resources affected by the transactions.
+
+- The JTA defines the UserTransaction interface that applications use to start, commit, or roll back transactions.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+WHAT IS A TRANSACTION
+
+    - Either all or none of the three steps must complete.
+            Otherwise, data integrity is lost.
+            Because the steps within a transaction are a unified whole, a transaction is often defined as an indivisible unit of work.
+
+    - When a transaction commits, the data modifications made by its statements are saved.
+            If a statement within a transaction fails, the transaction rolls back, undoing the effects of all statements in the transaction.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+CONTAINER-MANAGED TRANSACTIONS
+
+    - In an enterprise bean with container-managed transaction demarcation, the EJB container sets the boundaries of the transactions.
+
+    - You can use container-managed transactions with any type of enterprise bean: session or message-driven.
+
+    - Container-managed transactions simplify development because the enterprise bean code does not explicitly mark the transaction's boundaries.
+
+    - A transaction attribute can have one of the following values:
+
+        * Required      : The Required attribute is the implicit transaction attribute for all enterprise bean methods running with
+                          container-managed transaction demarcation. You typically do not set the Required attribute unless you need to
+                          override another transaction attribute.
+
+
+        * RequiresNew   : If the client is running within a transaction and invokes the enterprise bean's method, the container takes the following steps:
+
+                            1- Suspends the client's transaction
+
+                            2- Starts a new transaction
+
+                            3- Delegates the call to the method
+
+                            4- Resumes the client's transaction after the method completes
+
+                          If the client is not associated with a transaction, the container starts a new transaction before running the method.
+
+                          You should use the RequiresNew attribute when you want to ensure that the method always runs within a new transaction.
+
+
+        * Mandatory     : If the client is running within a transaction and invokes the enterprise bean's method,
+                          the method executes within the client's transaction. Use the Mandatory attribute if the enterprise bean's method must use
+                          the transaction of the client.
+
+
+        * NotSupported  : If the client is running within a transaction and invokes the enterprise bean's method,
+                          the container suspends the client's transaction before invoking the method. If the client is not associated with a transaction,
+                          the container does not start a new transaction before running the method. Use the NotSupported attribute for methods that
+                          don't need transactions. Because transactions involve overhead, this attribute may improve performance.
+
+
+        * Supports      : If the client is running within a transaction and invokes the enterprise bean's method,
+                          the method executes within the client's transaction.
+                          If the client is not associated with a transaction, the container does not start a new transaction before running the method.
+                          Because the transactional behavior of the method may vary, you should use the Supports attribute with caution.
+
+
+        * Never         : If the client is running within a transaction and invokes the enterprise bean's method, the container throws a RemoteException.
+                          If the client is not associated with a transaction, the container does not start a new transaction before running the method.
+
+
+    - Rolling Back a Container-Managed Transaction
+
+        * There are two ways to roll back a container-managed transaction:
+
+            > First, if a system exception is thrown, the container will automatically roll back the transaction.
+
+            > Second, by invoking the setRollbackOnly method of the EJBContext interface, the bean method instructs the container to roll back the transaction.
+
+
+    - Methods Not Allowed in Container-Managed Transactions
+
+        * You should not invoke any method that might interfere with the transaction boundaries set by the container. The following methods are prohibited:
+
+            > The commit, setAutoCommit, and rollback methods of java.sql.Connection
+
+            > The getUserTransaction method of javax.ejb.EJBContext
+
+            > Any method of javax.transaction.UserTransaction
+
+          You can, however, use these methods to set boundaries in application-managed transactions.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+BEAN-MANAGED TRANSACTIONS
+
+    - In bean-managed transaction demarcation, the code in the session or message-driven bean explicitly marks the boundaries of the transaction.
+
+    - Although beans with container-managed transactions require less coding, they have one limitation:
+            When a method is executing, it can be associated with either a single transaction or no transaction at all.
+            If this limitation will make coding your bean difficult, you should consider using bean-managed transactions.
+
+
+    - JTA Transactions
+
+        * JTA allows you to demarcate transactions in a manner that is independent of the transaction manager implementation.
+                GlassFish Server implements the transaction manager with the Java Transaction Service (JTS).
+
+        * A JTA transaction is controlled by the Java EE transaction manager.
+                You may want to use a JTA transaction because it can span updates to multiple databases from different vendors.
+
+
+    - Returning without Committing
+
+        * In a stateless session bean with bean-managed transactions, a business method must commit or roll back a transaction before returning.
+                However, a stateful session bean does not have this restriction.
+
+        * In a stateful session bean with a JTA transaction, the association between the bean instance and transaction is retained across multiple client calls.
+                Even if each business method called by the client opens and closes the database connection,
+                the association is retained until the instance completes the transaction.
+
+        * In a stateful session bean with a JDBC transaction, the JDBC connection retains the association between the bean instance and the transaction across
+                multiple calls. If the connection is closed, the association is not retained.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+TRANSACTION TIMEOUTS
+
+    - For container-managed transactions, you can use the Administration Console to configure the transaction timeout interval.
+
+    - For enterprise beans with bean-managed JTA transactions, you invoke the setTransactionTimeout method of the UserTransaction interface.
+
+
+    - To Set a Transaction Timeout
+
+        * In the Administration Console, expand the Configurations node, then expand the server-config node and select Transaction Service.
+
+            1- On the Transaction Service page, set the value of the Transaction Timeout field to the value of your choice (for example, 5).
+
+            2- With this setting, if the transaction has not completed within 5 seconds, the EJB container rolls it back.
+
+            3- The default value is 0, meaning that the transaction will not time out.
+
+            4- Click Save.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+UPDATING MULTIPLE DATABASES
+
+    - The Java EE transaction manager controls all enterprise bean transactions except for bean-managed JDBC transactions.
+
+    - The Java EE transaction manager allows an enterprise bean to update multiple databases within a transaction.
+
+    - For examples: https://docs.oracle.com/javaee/7/tutorial/transactions006.htm
+
+

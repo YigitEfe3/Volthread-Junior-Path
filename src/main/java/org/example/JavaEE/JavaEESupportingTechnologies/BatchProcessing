@@ -1,0 +1,503 @@
+
+
+                                                BATCH PROCESSING
+
+- Batch processing refers to running batch jobs on a computer system.
+
+- A batch job can be completed without user intervention.
+
+- For example, consider a telephone billing application that reads phone call records from the enterprise information systems and
+        generates a monthly bill for each account. Since this application does not require any user interaction, it can run as a batch job.
+
+        The phone billing application consists of two phases:
+                The first phase associates each call from the registry with a monthly bill, and
+                the second phase calculates the tax and total amount due for each bill.
+
+                Each of these phases is a step of the batch job.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+STEPS IN BATCH JOBS
+
+    - A step is an independent and sequential phase of a batch job.
+
+    - Chunk-oriented steps (chunk steps) process data by reading items from a data source, applying some business logic to each item, and storing the results.
+
+        * Chunk steps read and process one item at a time and group the results into a chunk.
+
+        * The results are stored when the chunk reaches a configurable size.
+
+        * Chunk-oriented processing makes storing results more efficient and facilitates transaction demarcation.
+
+        * Chunk steps have three parts.
+
+            > The input retrieval part reads one item at a time from a data source, such as entries on a database, files in a directory, or entries in a log file.
+
+            > The business processing part manipulates one item at a time using the business logic defined by the application.
+                    Examples include filtering, formatting, and accessing data from the item for computing a result.
+
+            > The output writing part stores a chunk of processed items at a time.
+
+        * Chunk steps are often long-running because they process large amounts of data.
+                Batch frameworks enable chunk steps to bookmark their progress using checkpoints.
+
+    - Task-oriented steps (task steps) execute tasks other than processing items from a data source.
+            Examples include creating or removing directories, moving files, creating or dropping database tables, configuring resources, and so on.
+
+        * Task steps are not usually long-running compared to chunk steps.
+
+        * For example, the phone billing application consists of two chunk steps.
+
+            > In the first step, the input retrieval part reads call records from the registry;
+                    the business processing part associates each call with a bill and creates a bill if one does not exist for an account;
+                    and the output writing part stores each bill in a database.
+
+            > In the second step, the input retrieval part reads bills from the database;
+                    the business processing part calculates the tax and total amount due for each bill;
+                    and the output writing part updates the database records and generates printable versions of each bill.
+
+
+    - Parallel Processing
+
+        * Batch jobs often process large amounts of data or perform computationally expensive operations.
+
+        * Batch applications can benefit from parallel processing in two scenarios.
+
+            > Steps that do not depend on each other can run on different threads.
+
+            > Chunk-oriented steps where the processing of each item does not depend on the results of processing previous items can run on more than one thread.
+
+
+    - Status And Decision Elements
+
+        * Batch frameworks keep track of a status for every step in a job.
+
+        * The status indicates if a step is running or if it has completed. If the step has completed, the status indicates one of the following.
+
+            > The execution of the step was successful.
+
+            > The step was interrupted.
+
+            > An error occurred in the execution of the step.
+
+
+        * Decision elements use the exit status of the previous step to determine the next step or to terminate the batch job.
+                Decision elements set the status of the batch job when terminating it.
+
+            > Like a step, a batch job can terminate successfully, be interrupted, or fail.
+
+
+    - Batch Framework Functionality
+
+        * Batch applications have the following common requirements.
+
+            > Define jobs, steps, decision elements, and the relationships between them.
+
+            > Execute some groups of steps or parts of a step in parallel.
+
+            > Maintain state information for jobs and steps.
+
+            > Launch jobs and resume interrupted jobs.
+
+            > Handle errors.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+BATCH PROCESSING IN JAVA EE
+
+    - The Batch Processing Framework
+
+        * Java EE includes a batch processing framework that consists of the following elements:
+
+            > A batch runtime that manages the execution of jobs
+
+            > A job specification language based on XML
+
+            > A Java API to interact with the batch runtime
+
+            > A Java API to implement steps, decision elements, and other batch artifacts
+
+
+    - Creating Batch Applications
+
+        * The process for creating a batch application in Java EE is the following.
+
+            > Design the batch application.
+
+                1- Identify the input sources, the format of the input data, the desired final result, and the required processing phases.
+
+                2- Organize the application as a job with chunk-oriented and task-oriented steps, and decision elements. Determine the dependencies between them.
+
+                3- Determine the order of execution in terms of transitions between steps.
+
+                4- Identify steps that can run in parallel and steps that can run in more than one thread.
+
+            > Create the batch artifacts as Java classes by implementing the interfaces specified by the framework for steps, decision elements, and so on.
+                    These Java classes contain the code to read data from input sources, format items, process items, and store results.
+                    Batch artifacts can access context objects from the batch runtime using dependency injection.
+
+            > Define jobs, steps, and their execution flow in XML files using the Job Specification Language.
+                    The elements in the XML files reference batch artifacts implemented as Java classes.
+                    The batch artifacts can access properties declared in the XML files, such as names of files and databases.
+
+            > Use the Java API provided by the batch runtime to launch the batch application.
+
+
+    - Elements of a Batch Job
+
+        * A batch job can contain one or more of the following elements:
+
+            > Steps
+
+            > Flows
+
+            > Splits
+
+            > Decision elements
+
+
+    - Properties and Parameters
+
+        * Jobs and steps can have a number of properties associated with them.
+
+        * You define properties in the job definition file, and batch artifacts access these properties using context objects from the batch runtime.
+
+
+    - Job Instances and Job Executions
+
+        * A job definition can have multiple instances, each with different parameters.
+
+        * A job execution is an attempt to run a job instance.
+
+
+    - Batch and Exit Status
+
+        * The state of jobs, steps, splits, and flows is represented in the batch runtime as a batch status value.
+
+        * For flows, the batch status is that of its last step. For splits, the batch status is the following:
+
+            > COMPLETED : If all its flows have a batch status of COMPLETED
+
+            > FAILED    : If any flow has a batch status of FAILED
+
+            > STOPPED   : If any flow has a batch status of STOPPED, and no flows have a batch status of FAILED
+
+        * The batch status for jobs, steps, splits, and flows is set by the batch runtime.
+                Jobs, steps, splits, and flows also have an exit status, which is a user-defined value based on the batch status.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING THE JOB SPECIFICATION LANGUAGE
+
+    - The Job Specification Language (JSL) enables you to define the steps in a job and their execution order using an XML file.
+
+    - The job element defines two properties:
+
+        * input_file, and
+
+        * output_file
+
+
+    - The job Element
+
+        * The job element is always the top-level element in a job definition file.
+
+        * Its main attributes are id and restartable.
+
+        * The job element can contain one properties element and zero or more of each of the following elements:
+
+            > listener,
+
+            > step,
+
+            > flow, and
+
+            > split
+
+
+    - The step Element
+
+        * The step element can be a child of the job and flow elements.
+
+        * Its main attributes are id and next.
+
+        * The step element can contain the following elements:
+
+            > One chunk element for chunk-oriented steps or one batchlet element for task-oriented steps.
+
+            > One properties element (optional).
+
+            > One listener element (optional); one listeners element if more than one listener is specified.
+
+            > One partition element (optional).
+
+            > One end element if this is the last step in a job. This element sets the batch status to COMPLETED.
+
+            > One stop element (optional) to stop a job at this step. This element sets the batch status to STOPPED.
+
+            > One fail element (optional) to terminate a job at this step. This element sets the batch status to FAILED.
+
+            > One or more next elements if the next attribute is not specified.
+
+
+    - The chunk Element
+
+        * The chunk element is a child of the step element for chunk-oriented steps.
+
+        * The attributes of this element are:
+
+            > checkpoint-policy                 > item-count
+
+            > time-limit                        > buffer-items
+
+            > skip-limit                        > retry-limit
+
+        * The chunk element can contain the following elements:
+
+            > One reader element that implements the ItemReader interface.
+
+            > One processor element that implements the ItemProcessor interface.
+
+            > One writer element that implements the ItemWriter interface.
+
+            > One checkpoint-algorithm element (optional) that implements the CheckpointAlgorithm interface
+
+            > One skippable-exception-classes element (optional).
+
+            > One retryable-exception-classes element (optional).
+
+            > One no-rollback-exception-classes element (optional).
+
+
+    - The batchlet Element
+
+        * The batchlet element is a child of the step element for task-oriented steps.
+
+        * This element only has the ref attribute, which specifies a batch artifact that implements the Batchlet interface.
+
+
+    - The partition Element
+
+        * The partition element is a child of the step element.
+
+        * It indicates that a step is partitioned.
+
+        * Most partitioned steps are chunk steps where the processing of each item does not depend on the results of processing previous items.
+
+        * You specify the number of partitions in a step and provide each partition with specific information on which items to process, such as the following:
+
+            > A range of items.
+                    For example, partition 1 processes items 1 through 500, and partition 2 processes items 501 through 1000.
+
+            > An input source.
+                    For example, partition 1 processes the items in input1.txt and partition 2 processes the items in input2.txt.
+
+        * The partition element can contain the following elements.
+
+            > One plan element, if the mapper element is not specified.
+                    This element defines the number of partitions,
+                                         the number of threads, and
+                                         the properties for each partition in the job definition file.
+
+            > One mapper element, if the plan element is not specified.
+                    This element specifies a batch artifact that provides the number of partitions,
+                                                                          the number of threads, and
+                                                                          the properties for each partition.
+
+            > One reducer element (optional).
+                    This element specifies a batch artifact that receives control when a partitioned step begins, ends, or rolls back.
+
+            > One collector element (optional).
+                    This element specifies a batch artifact that sends intermediary results from each partition to a partition analyzer.
+
+            > One analyzer element (optional).
+                    This element specifies a batch artifact that analyzes the intermediary results from the partition collector instances.
+
+
+    - The flow Element
+
+        * The flow element can be a child of the job, flow, and split elements.
+
+        * Its attributes are id and next.
+
+        * Flows can transition to flows, steps, splits, and decision elements.
+
+        * The flow element can contain the following elements:
+
+            > One or more step elements
+
+            > One or more flow elements (optional)
+
+            > One or more split elements (optional)
+
+            > One or more decision elements (optional)
+
+
+    - The split Element
+
+        * The split element can be a child of the job and flow elements.
+
+        * Its attributes are id and next.
+
+        * Splits can transition to splits, steps, flows, and decision elements.
+
+        * The split element can only contain one or more flow elements that can only transition to other flow elements in the split.
+
+
+    - The decision Element
+
+        * The decision element can be a child of the job and flow elements.
+
+        * Its attributes are id and next.
+
+        * Steps, flows, and splits can transition to a decision element.
+
+        * This element specifies a batch artifact that decides the next step, flow, or split to execute based on
+                         information from the execution of the previous step, flow, or split.
+
+        * The batch artifact implements the Decider interface.
+
+        * The decision element can contain the following elements.
+
+            > One or more end elements (optional). This element sets the batch status to COMPLETED.
+
+            > One or more stop elements (optional). This element sets the batch status to STOPPED.
+
+            > One or more fail elements (optional). This element sets the batch status to FAILED.
+
+            > One or more next elements (optional).
+
+            > One properties element (optional).
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+CREATING BATCH ARTIFACTS
+
+    - After you define a job in terms of its batch artifacts using the Job Specification Language (JSL),
+            you create these artifacts as Java classes that implement the interfaces in the javax.batch.api package and its subpackages.
+
+    - Batch Artifact Interfaces
+
+        * Main ---> javax.batch.api.
+                              Batchlet
+                              Decider
+
+               ---> javax.batch.api.chunk.
+                                          CheckPointAlgorithm
+                                          ItemReader
+                                          ItemProcessor
+                                          ItemWriter
+
+        * Partition ---> javax.batch.api.partition.
+                                                   PartitionPlan
+                                                   PartitionMapper
+                                                   PartitionReducer
+                                                   PartitionCollector
+                                                   PartitionAnalyzer
+
+        * Listener ---> javax.batch.api.listener.
+                                                 JobListener
+                                                 StepListener
+
+                   ---> javax.batch.api.chunk.listener.
+                                                       ChunkListener
+                                                       ItemReadListener
+                                                       ItemProcessListener
+                                                       ItemWriteListener
+                                                       RetryReadListener
+                                                       RetryProcessListener
+                                                       RetryWriteListener
+                                                       SkipReadListener
+                                                       SkipProcessListener
+
+
+    - Dependency Injection in Batch Artifacts
+
+        * To ensure that Contexts and Dependency Injection (CDI) works in your batch artifacts, follow these steps.
+
+            1- Define your batch artifact implementations as CDI named beans using the Named annotation.
+
+            2- Provide a public, empty, no-argument constructor for your batch artifacts.
+
+            3- Specify the CDI name for the batch artifacts in the job definition file, instead of using the fully qualified name of the class.
+
+            4- Ensure that your module is a CDI bean archive by annotating your batch artifacts with the javax.enterprise.context.Dependent annotation or
+                    by including an empty beans.xml deployment description with your application.
+
+        * You may encounter the following errors if you do not follow this procedure.
+
+            > The batch runtime cannot locate some batch artifacts.
+
+            > The batch artifacts throw null pointer exceptions when accessing injected objects.
+
+
+    - Using the Context Objects from the Batch Runtime
+
+        * The batch runtime provides context objects that implement the JobContext and StepContext interfaces in the javax.batch.runtime.context package.
+
+        * These objects are associated with the current job and step, respectively, and enable you to do the following:
+
+            > Get information from the current job or step, such as its name, instance ID, execution ID, batch status, and exit status
+
+            > Set the user-defined exit status
+
+            > Store user data
+
+            > Get property values from the job or step definition
+
+          You can inject context objects from the batch runtime inside batch artifact implementations like item readers,
+                                                                                                           item processors,
+                                                                                                           item writers,
+                                                                                                           batchlets,
+                                                                                                           listeners, and so on.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+SUBMITTING JOBS TO THE BATCH RUNTIME
+
+    - The JobOperator interface in the javax.batch.operations package enables you to submit jobs to the batch runtime and obtain information about existing jobs.
+
+    - This interface provides the following functionality:
+
+        * Obtain the names of all known jobs.
+
+        * Start, stop, restart, and abandon jobs.
+
+        * Obtain job instances and job executions.
+
+    - The BatchRuntime class in the javax.batch.runtime package provides the getJobOperator factory method to obtain JobOperator objects.
+
+
+    - Checking the Status of a Job
+
+        * The JobExecution interface in the javax.batch.runtime package provides methods to obtain information about submitted jobs.
+
+        * This interface provides the following functionality.
+
+            > Obtain the batch and exit status of a job execution.
+
+            > Obtain the time the execution was started, updated, or ended.
+
+            > Obtain the job name.
+
+            > Obtain the execution ID.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+PACKAGING BATCH APPLICATIONS
+
+    - Job definition files and batch artifacts do not require separate packaging and can be included in any Java EE application.
+
+    - Package batch artifact classes with the rest of the classes of your application, and include the job definition files in one of the following directories:
+
+        * META-INF/batch-jobs/ for jar packages
+
+        * WEB-INF/classes/META-INF/batch-jobs/ for war packages
+
+
