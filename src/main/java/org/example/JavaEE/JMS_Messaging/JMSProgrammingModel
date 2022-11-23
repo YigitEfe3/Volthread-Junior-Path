@@ -1,0 +1,337 @@
+
+
+                                            JMS API PROGRAMMING MODEL
+
+- The basic building blocks of a JMS application are
+
+    * Administered objects: connection factories and destinations
+
+    * Connections
+
+    * Sessions
+
+    * JMSContext objects, which combine a connection and a session in one object
+
+    * Message producers
+
+    * Message consumers
+
+    * Messages
+
+- JMS also provides queue browsers, objects that allow an application to browse messages on a queue.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+JMS ADMINISTERED OBJECTS
+
+    - Two parts of a JMS application, destinations and connection factories, are commonly maintained administratively rather than programmatically.
+
+    -
+
+    - JMS Connection Factories
+
+        * A connection factory is the object a client uses to create a connection to a provider.
+
+        * A connection factory encapsulates a set of connection configuration parameters that has been defined by an administrator.
+
+        * Each connection factory is an instance of the ConnectionFactory,
+                                                        QueueConnectionFactory, or
+                                                        TopicConnectionFactory interface.
+
+        * A Java EE server must provide a JMS connection factory with the logical JNDI name java:comp/DefaultJMSConnectionFactory.
+                The actual JNDI name will be implementation-specific.
+
+
+    - JMS Destinations
+
+        * A destination is the object a client uses to specify the target of messages it produces and the source of messages it consumes.
+
+        * In the PTP messaging style, destinations are called queues.
+
+        * In the pub/sub messaging style, destinations are called topics.
+
+        * A JMS application can use multiple queues or topics (or both).
+
+        * In addition to injecting a connection factory resource into a client program, you usually inject a destination resource.
+
+        * ike connection factories, destinations are specific to either the PTP or pub/sub messaging style.
+                To create an application that allows you to use the same code for both topics and queues, you assign the destination to a Destination object.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+CONNECTIONS
+
+    - A connection encapsulates a virtual connection with a JMS provider.
+            For example, a connection could represent an open TCP/IP socket between a client and a provider service daemon.
+
+    - You use a connection to create one or more sessions.
+
+    - In the Java EE platform, the ability to create multiple sessions from a single connection is limited to application clients.
+
+    - In web and enterprise bean components, a connection can create no more than one session.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+SESSIONS
+
+    - A session is a single-threaded context for producing and consuming messages.
+
+    - You normally create a session (as well as a connection) by creating a JMSContext object.
+
+    - You use sessions to create message producers,
+                                 message consumers,
+                                 messages,
+                                 queue browsers, and
+                                 temporary destinations.
+
+    - Sessions serialize the execution of message listeners.
+
+    - A session provides a transactional context with which to group a set of sends and receives into an atomic unit of work.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+JMSCONTEXT OBJECTS
+
+    - A JMSContext object combines a connection and a session in a single object.
+            That is, it provides both an active connection to a JMS provider and a single-threaded context for sending and receiving messages.
+
+    - You use the JMSContext to create the following objects:
+
+        * Message producers
+
+        * Message consumers
+
+        * Messages
+
+        * Queue browsers
+
+        * Temporary queues and topics
+
+    - You can create a JMSContext in a try-with-resources block.
+            To create a JMSContext, call the createContext method on the connection factory:
+
+                        JMSContext context = connectionFactory.createContext();
+
+    - When you use a JMSContext, message delivery normally begins as soon as you create a consumer.
+
+    - If you create a JMSContext in a try-with-resources block, you do not need to close it explicitly.
+            It will be closed when the try block comes to an end.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+JMS MESSAGE PRODUCERS
+
+    - A message producer is an object that is created by a JMSContext or a session and used for sending messages to a destination.
+
+    - A message producer created by a JMSContext implements the JMSProducer interface.
+
+    - You could create it this way:             try (JMSContext context = connectionFactory.createContext();) {
+                                                    JMSProducer producer = context.createProducer();
+                                                    ... }
+
+    - However, a JMSProducer is a lightweight object that does not consume significant resources.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+JMS MESSAGE CONSUMERS
+
+    - A message consumer is an object that is created by a JMSContext or a session and used for receiving messages sent to a destination.
+
+    - A message producer created by a JMSContext implements the JMSConsumer interface.
+
+    - The simplest way to create a message consumer is to use the JMSContext.createConsumer method:
+
+                      try (JMSContext context = connectionFactory.createContext();) {
+                          JMSConsumer consumer = context.createConsumer(dest);
+                          ... }
+
+    - A message consumer allows a JMS client to register interest in a destination with a JMS provider.
+
+    - The JMS provider manages the delivery of messages from a destination to the registered consumers of the destination.
+
+
+    - JMS Message Listeners
+
+        * A message listener is an object that acts as an asynchronous event handler for messages.
+
+        * This object implements the MessageListener interface, which contains one method, onMessage.
+                In the onMessage method, you define the actions to be taken when a message arrives.
+
+        * When message delivery begins, the JMS provider automatically calls the message listener's onMessage method whenever a message is delivered.
+                The onMessage method takes one argument of type Message.
+
+        * Your onMessage method should handle all exceptions. Throwing a RuntimeException is considered a programming error.
+
+
+    - JMS Message Selectors
+
+        * If your messaging application needs to filter the messages it receives, you can use a JMS message selector, which
+                allows a message consumer for a destination to specify the messages that interest it.
+
+        * Message selectors assign the work of filtering messages to the JMS provider rather than to the application.
+
+        * A message selector is a String that contains an expression.
+
+        * The message selector in the example selects any message that has a NewsType property that is set to the value 'Sports' or 'Opinion':
+
+                            NewsType = 'Sports' OR NewsType = 'Opinion'
+
+        * The createConsumer and createDurableConsumer methods, as well as the methods for creating shared consumers,
+                allow you to specify a message selector as an argument when you create a message consumer.
+
+
+    - Consuming Messages From Topics
+
+        * The semantics of consuming messages from topics are more complex than the semantics of consuming messages from queues.
+
+        * An application consumes messages from a topic by creating a subscription on that topic and creating a consumer on that subscription.
+                Subscriptions may be durable or nondurable, and they may be shared or unshared.
+
+        * A subscription may be thought of as an entity within the JMS provider itself, whereas a consumer is a JMS object within the application.
+
+        * Subscriptions may be durable or nondurable.
+
+        * A nondurable subscription exists only as long as there is an active consumer on the subscription.
+                This means that any messages sent to the topic will be added to the subscription only while a consumer exists and is not closed.
+
+        * A nondurable subscription may be either unshared or shared.
+
+            > An unshared nondurable subscription does not have a name and may have only a single consumer object associated with it.
+                    It is created automatically when the consumer object is created.
+                    It is not persisted and is deleted automatically when the consumer object is closed.
+
+            > A shared nondurable subscription is identified by name and an optional client identifier, and
+                    may have several consumer objects consuming messages from it.
+                    It is created automatically when the first consumer object is created.
+                    It is not persisted and is deleted automatically when the last consumer object is closed.
+
+
+    - Creating Durable Subscriptions
+
+        * To ensure that a pub/sub application receives all sent messages, use durable subscriptions for the consumers on the topic.
+
+        * Like a nondurable subscription, a durable subscription may be either unshared or shared.
+
+            > An unshared durable subscription is identified by name and client identifier (which must be set) and
+                    may have only a single consumer object associated with it.
+
+            > A shared durable subscription is identified by name and an optional client identifier, and
+                    may have several consumer objects consuming messages from it.
+
+        * A durable subscription that exists but that does not currently have a non-closed consumer object associated with it is described as being inactive.
+
+        * You establish the unique identity of an unshared durable subscription by setting the following:
+
+            > A client ID for the connection
+
+            > A topic and a subscription name for the subscription
+
+        * JMSConsumer consumer = context.createDurableConsumer(myTopic, MySubName);
+
+        * The subscription becomes active after you create the consumer. Later, you might close the consumer:           consumer.close();
+
+        * The unsubscribe method deletes the state the provider maintains for the subscription.
+
+
+    - Creating Shared Subscriptions
+
+        * A topic subscription created by the createConsumer or createDurableConsumer method can have only one consumer (although a topic can have many).
+
+        * It is, possible to create a nondurable shared subscription to a topic by using the createSharedConsumer method and
+                specifying not only a destination but a subscription name:
+
+                                    consumer = context.createSharedConsumer(topicName, "SubName");
+
+        * With a shared subscription, messages will be distributed among multiple clients that use the same topic and subscription name.
+
+        * Each message sent to the topic will be added to every subscription (subject to any message selectors),
+                but each message added to a subscription will be delivered to only one of the consumers on that subscription,
+                so it will be received by only one of the clients.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+JMS MESSAGES
+
+    - The ultimate purpose of a JMS application is to produce and consume messages that can then be used by other software applications.
+
+    - JMS messages have a basic format that is simple but highly flexible, allowing you to create messages that
+            match formats used by non-JMS applications on heterogeneous platforms.
+
+    - A JMS message can have three parts: a header, properties, and a body.
+            Only the header is required.
+
+
+    - Message Headers
+
+        * A JMS message header contains a number of predefined fields that contain values used by both clients and providers to identify and route messages.
+
+        * Message Header Fields:
+
+            > JMSDestination        > JMSDeliveryMode       > JMSDeliveryTime       > JMSExpiration
+
+            > JMSPriority           > JMSMessageID          > JMSTimestamp          > JMSCorrelationID
+
+            > JMSReplyTo            > JMSType               > JMSRedelivered
+
+
+    - Message Properties
+
+        * You can create and set properties for messages if you need values in addition to those provided by the header fields.
+
+        * You can use properties to provide compatibility with other messaging systems, or you can use them to create message selectors.
+
+        * The JMS API provides some predefined property names that begin with JMSX. A JMS provider is required to implement only one of these,
+                JMSXDeliveryCount (which specifies the number of times a message has been delivered); the rest are optional.
+
+
+    - Message Bodies
+
+        * The JMS API defines six different types of messages.
+                Each message type corresponds to a different message body.
+
+        * These message types allow you to send and receive data in many different forms. These message types are:
+
+            > TextMessage               > MapMessage                > BytesMessage
+
+            > StreamMessage             > ObjectMessage             > Message
+
+        * At the consuming end, a message arrives as a generic Message object.
+                You can then cast the object to the appropriate message type and use more specific methods to access the body and extract the message contents.
+
+        * Instead of casting the message to a message type, you can call the getBody method on the Message, specifying the type of the message as an argument.
+
+        * The JMS API provides shortcuts for creating and receiving a TextMessage, BytesMessage, MapMessage, or ObjectMessage.
+
+        * You can receive the message by using the receiveBody method:
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+JMS QUEUE BROWSERS
+
+    - Messages sent to a queue remain in the queue until the message consumer for that queue consumes them.
+
+    - The JMS API provides a QueueBrowser object that allows you to browse the messages in the queue and display the header values for each message.
+
+    - To create a QueueBrowser object, use the JMSContext.createBrowser method. For example:            QueueBrowser browser = context.createBrowser(queue);
+
+    - THe JMS API provides no mechanism for browsing a topic. Messages usually disappear from a topic as soon as they appear:
+            If there are no message consumers to consume them, the JMS provider removes them.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+JMS EXCEPTION HANDLING
+
+    - The root class for all checked exceptions in the JMS API is JMSException.
+
+    - The root cause for all unchecked exceptions in the JMS API is JMSRuntimeException.
+
+
