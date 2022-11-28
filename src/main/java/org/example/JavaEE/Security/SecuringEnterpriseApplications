@@ -1,0 +1,299 @@
+
+
+                                 GETTING STARTED SECURING ENTERPRISE APPLICATIONS
+
+
+BASIC SECURITY TASKS FOR ENTERPRISE APPLICATIONS
+
+    - System administrators, application developers, bean providers, and deployers are responsible for administering security for enterprise applications.
+
+    - The basic security tasks are as follows:
+
+        * Setting up a database of users and assigning them to the proper group
+
+        * Setting up identity propagation
+
+        * Setting GlassFish Server properties that enable the applications to run properly, such as setting default principal-to-role mapping
+
+        * Annotating the classes and methods of an enterprise application to provide information about which methods need to have restricted access
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+SECURING ENTERPRISE BEANS
+
+    - Enterprise beans are Java EE components that implement EJB technology.
+
+    - Enterprise beans run in the EJB container, a runtime environment within GlassFish Server.
+
+    - Although transparent to the application developer, the EJB container provides system-level services, such as
+            transactions and security to its enterprise beans, which form the core of transactional Java EE applications.
+
+    - Enterprise bean methods can be secured in either of the following ways.
+
+        * Declarative security (preferred)
+
+            > Expresses an application component's security requirements using either deployment descriptors or annotations.
+
+            > The presence of an annotation in the business method of an enterprise bean class that
+                    specifies method permissions is all that is needed for method protection and authentication in some situations.
+
+            > Because of some limitations to the simplified method of securing enterprise beans,
+                    you would want to continue to use the deployment descriptor to specify security information in some instances.
+
+            > An authentication mechanism must be configured on the server for the simple solution to work.
+
+            > Basic authentication is GlassFish Server's default authentication method.
+
+            > When one of the annotations is used to define method permissions, the deployment system will automatically require user name/password authentication.
+
+            > In this type of authentication, a user is prompted to enter a user name and password, which will be compared against a database of known users.
+
+            > If the user is found, the roles that the user is assigned will be compared against the roles that are authorized to access the method.
+
+            > If the user is authenticated and found to have a role that is authorized to access that method, the data will be returned to the user.
+
+
+        * Programmatic security
+
+            > For an enterprise bean, code embedded in a business method that is used to access a caller's identity programmatically and
+                    that uses this information to make security decisions.
+
+            > Programmatic security is useful when declarative security alone is not sufficient to express the security model of an application.
+
+            > In general, security management should be enforced by the container in a manner that is transparent to the enterprise beans' business methods.
+
+            > Should be used only in the less frequent situations in which the enterprise bean business methods need to access the security-context information,
+                    such as when you want to grant access based on the time of day.
+
+
+    - Security annotations will be used in the Java programming class files to specify authorized users and basic, or user name/password, authentication.
+
+    - Enterprise beans often provide the business logic of a web application.
+            In these cases, packaging the enterprise bean within the web application's WAR module simplifies deployment and application organization.
+
+    - Enterprise beans may be packaged within a WAR module as Java class files or within a JAR file that is bundled within the WAR module.
+
+    - When a servlet or JavaServer Faces page handles the web front end and the application is packaged into a WAR module as a Java class file,
+            security for the application can be handled in the application's web.xml file.
+
+
+    - Securing an Enterprise Bean Using Declarative Security
+
+        * Declarative security enables the application developer to specify which users are authorized to
+                access which methods of the enterprise beans and to authenticate these users with basic, or user name/password, authentication.
+
+        * An application developer who uses declarative security to define method permissions and authentication mechanisms is passing along to the
+                deployer a security view of the enterprise beans contained in the EJB JAR.
+
+        * When a security view is passed on to the deployer, he or she uses this information to define method permissions for security roles.
+
+        * If you don't define a security view, the deployer will have to determine what each business method does to determine
+                which users are authorized to call each method.
+
+        * A security view consists of a set of security roles,
+                a semantic grouping of permissions that a given type of users of an application must have to successfully access the application.
+
+        * Security roles are meant to be logical roles, representing a type of user.
+
+        * You can define method permissions for each security role.
+
+        * A method permission is a permission to invoke a specified group of methods of an enterprise bean's business interface,
+                                                                                                             home interface,
+                                                                                                             component interface, and/or
+                                                                                                             web service endpoints.
+                After method permissions are defined, user name/password authentication will be used to verify the identity of the user.
+
+        * It is important to keep in mind that security roles are used to define the logical security view of an application.
+                They should not be confused with the user groups, users, principals, and other concepts that exist in GlassFish Server.
+
+        * An additional step is required to map the roles defined in the application to users, groups, and principals that are
+                the components of the user database in the file realm of GlassFish Server.
+
+
+        * Specifying Authorized Users by Declaring Security Roles
+
+            > Method permissions can be specified on the class, the business methods of the class, or both.
+
+            > Method permissions can be specified on a method of the bean class to override the method permissions value specified on the entire bean class.
+
+            > The following annotations are used to specify method permissions.
+
+                + @DeclareRoles: Specifies all the roles that the application will use, including roles not specifically named in a @RolesAllowed annotation.
+                                 The set of security roles the application uses is the total of the security roles defined in the @DeclareRoles and
+                                                                                                                                  @RolesAllowed annotations.
+                                 The @DeclareRoles annotation is specified on a bean class, where it serves to declare roles that can be tested.
+                                 When declaring the name of a role used as a parameter, the declared name must be the same as the parameter value.
+
+                        Use of the @DeclareRoles annotation:                        Declaring more than one role
+
+                        @DeclareRoles("BusinessAdmin")                    @DeclareRoles({"Administrator", "Manager", "Employee"})
+                        public class Calculator { ... }
+
+
+                + @RolesAllowed("list-of-roles"): Specifies the security roles permitted to access methods in an application.
+                                                  This annotation can be specified on a class or on one or more methods.
+                                                  When specified at the class level, the annotation applies to all methods in the class.
+                                                  When specified on a method,
+                                                        the annotation applies to that method only and overrides any values specified at the class level.
+                                                  To specify that no roles are authorized to access methods in an application, use the @DenyAll annotation.
+                                                  To specify that a user in any role is authorized to access the application, use the @PermitAll annotation.
+                                                  When used in conjunction with the @DeclareRoles annotation,
+                                                        the combined set of security roles is used by the application.
+
+                        Use of the @RolesAllowed annotation:
+
+                                @DeclareRoles({"Administrator", "Manager", "Employee"})
+                                public class Calculator {
+                                    @RolesAllowed("Administrator")
+                                    public void setNewRate(int rate) { ... }
+                                }
+
+
+                + @PermitAll: Specifies that all security roles are permitted to execute the specified method or methods.
+                              The user is not checked against a database to ensure that he or she is authorized to access this application.
+                              This annotation can be specified on a class or on one or more methods.
+                              Specifying this annotation on the class means that it applies to all methods of the class.
+                              Specifying it at the method level means that it applies to only that method.
+
+                          Use of the @PermitAll annotation:
+
+                          import javax.annotation.security.*;
+                          @RolesAllowed("RestrictedUsers")
+                          public class Calculator {
+
+                              @RolesAllowed("Administrator")
+                              public void setNewRate(int rate) { ...
+                              }
+                              @PermitAll
+                              public long convertCurrency(long amount) { ... }
+                          }
+
+
+                + @DenyAll: Specifies that no security roles are permitted to execute the specified method or methods.
+                            This means that these methods are excluded from execution in the Java EE container.
+
+                          Use of the @DenyAll annotation:
+
+                          import javax.annotation.security.*;
+                          @RolesAllowed("Users")
+                          public class Calculator {
+                              @RolesAllowed("Administrator")
+                              public void setNewRate(int rate) { ... }
+
+                              @DenyAll
+                              public long convertCurrency(long amount) { ... }
+                          }
+
+        * Specifying an Authentication Mechanism and Secure Connection
+
+            > When method permissions are specified, basic user name/password authentication will be invoked by GlassFish Server.
+
+            > To use a different type of authentication or to require a secure connection using SSL, specify this in an application deployment descriptor.
+
+
+    - Securing an Enterprise Bean Programmatically
+
+        * Programmatic security, code that is embedded in a business method, is used to access a caller's identity programmatically and uses this information to
+                make security decisions within the method itself.
+
+        * Accessing an Enterprise Bean Caller's Security Context
+
+            > In general, security management should be enforced by the container in a manner that is transparent to the enterprise bean's business methods.
+
+            > Should be used only in the less frequent situations in which the enterprise bean business methods need to access the security context information,
+                    such as when you want to restrict access to a particular time of day.
+
+            > EJBContext interface provides two methods that allow the bean provider to access security information about the enterprise bean's caller:
+
+                + getCallerPrincipal: Allows the enterprise bean methods to obtain the current caller principal's name.
+                                      The methods might, for example, use the name as a key to information in a database.
+
+                + isCallerInRole: Allows the developer to code the security checks that cannot be easily defined using method permissions.
+                                  Such a check might impose a role-based limit on a request, or it might depend on information stored in the database.
+
+                + The enterprise bean code can use the isCallerInRole method to test whether the current caller has been assigned to a given security role.
+
+                + Security roles are defined by the bean provider or the application assembler and are assigned by the deployer to
+                        principals or principal groups that exist in the operational environment.
+
+                + You would use programmatic security to dynamically control access to a method,
+                        for example, when you want to deny access except during a particular time of day.
+
+
+    - Propagating a Security Identity (Run-As)
+
+        * You can specify whether a caller's security identity should be used for the execution of specified methods of an enterprise bean or
+                whether a specific run-as identity should be used.
+
+        * An application client is making a call to an enterprise bean method in one EJB container.
+                This enterprise bean method, in turn, makes a call to an enterprise bean method in another container.
+                The security identity during the first call is the identity of the caller.
+                The security identity during the second call can be any of the following options.
+
+            > By default, the identity of the caller of the intermediate component is propagated to the target enterprise bean.
+                    This technique is used when the target container trusts the intermediate container.
+
+            > A specific identity is propagated to the target enterprise bean.
+                    This technique is used when the target container expects access using a specific identity.
+
+        * To propagate an identity to the target enterprise bean, configure a run-as identity for the bean
+
+        * Establishing a run-as identity for an enterprise bean does not affect the identities of its callers,
+                which are the identities tested for permission to access the methods of the enterprise bean.
+
+        * The run-as identity establishes the identity that the enterprise bean will use when it makes calls.
+
+        * The run-as identity applies to the enterprise bean as a whole, including all the methods of the enterprise bean's business interface,
+                                                                                   local and remote interfaces,
+                                                                                   component interface,
+                                                                                   web service endpoint interfaces,
+                                                                                   the message listener methods of a message-driven bean,
+                                                                                   the timeout method of an enterprise bean, and
+                                                                                   all internal methods of the bean that might be called in turn.
+
+
+        * Configuring a Component's Propagated Security Identity
+
+            > You can configure an enterprise bean's run-as, or propagated, security identity by using the @RunAs annotation,
+                    which defines the role of the application during execution in a Java EE container.
+
+            > The annotation can be specified on a class, allowing developers to execute an application under a particular role.
+
+            > The role must map to the user/group information in the container's security realm.
+
+            > The @RunAs annotation specifies the name of a security role as its parameter.
+
+            > Use of the @RunAs annotation:                         @RunAs("Admin")
+                                                                    public class Calculator { ... }
+
+
+        * Trust Between Containers
+
+            > When an enterprise bean is designed so that either the original caller identity or a designated identity is used to call a target bean,
+                    the target bean will receive the propagated identity only.
+
+            > The target bean will not receive any authentication data.
+
+            > There is no way for the target container to authenticate the propagated security identity.
+                    However, because the security identity is used in authorization checks, it is vitally important that the security identity be authentic.
+                    Because no authentication data is available to authenticate the propagated identity,
+                            the target must trust that the calling container has propagated an authenticated security identity.
+                    By default, GlassFish Server is configured to trust identities that are propagated from different containers.
+                            Therefore, you do not need to take any special steps to set up a trust relationship.
+
+
+    - Deploying Secure Enterprise Beans
+
+        * Deployment information is specific to a web or application server.
+
+        * The deployer is responsible for ensuring that an assembled application is secure after it has been deployed in the target operational environment.
+
+        * If a security view has been provided to the deployer through the use of security annotations and/or a deployment descriptor,
+                the security view is mapped to the mechanisms and policies used by the security domain in the target operational environment (GlassFish Server).
+
+        * If no security view is provided, the deployer must set up the appropriate security policy for the enterprise bean application.
+
+
+
+

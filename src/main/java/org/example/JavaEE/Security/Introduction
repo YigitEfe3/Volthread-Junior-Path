@@ -1,0 +1,514 @@
+
+
+                                INTRODUCTION TO SECURITY IN THE JAVA EE PLATFORM
+
+OVERVIEW OF JAVA EE SECURITY
+
+    - Enterprise tier and web tier applications are made up of components that are deployed into various containers.
+            These components are combined to build a multitier enterprise application.
+
+    - Security for components is provided by their containers. A container provides two kinds of security: declarative and programmatic.
+
+        * Declarative security expresses an application component's security requirements by using either deployment descriptors or annotations.
+
+            > A deployment descriptor is an XML file that is external to the application and that expresses an application's security structure,
+                    including security roles,
+                              access control, and
+                              authentication requirements.
+
+            > Annotations are used to specify information about security within a class file.
+                    When the application is deployed, this information can be either used by or overridden by the application deployment descriptor.
+
+                + Annotations save you from having to write declarative information inside XML descriptors.
+
+                + Instead, you simply put annotations on the code, and the required information gets generated.
+
+        * Programmatic security is embedded in an application and is used to make security decisions.
+                Programmatic security is useful when declarative security alone is not sufficient to express the security model of an application.
+
+
+
+    - A Simple Application Security Walkthrough
+
+        * Security behavior of a Java EE environment may be better understood by examining what happens in a simple application with a web client,
+                                                                                                                                     a user interface, and
+                                                                                                                                    enterprise bean business logic.
+
+            1- Initial Request:
+
+                    The web client requests the main application URL
+
+                    Since the client has not yet authenticated itself to the application environment,
+                the server responsible for delivering the web portion of the application, hereafter referred to as the web server,
+                detects this and invokes the appropriate authentication mechanism for this resource.
+
+
+            2- Initial Authentication:
+
+                    The web server returns a form that the web client uses to collect authentication data from the user.
+
+                    The web client forwards the authentication data to the web server, where it is validated.
+                Validation mechanism may be local to a server or leverage the underlying security services.
+                On the basis of the validation, the web server sets a credential for the user.
+
+
+            3- URL Authorization:
+
+                    The credential is used for future determinations of whether the user is authorized to access the restricted resources.
+
+                    The web server consults the security policy associated with the web resource to determine the security roles that are permitted.
+                The security policy is derived from annotations or from the deployment descriptor.
+                The seb server's evaluation stops with either an "is authorized" or a "not authorized" outcome depending on the ability of the server
+                yo map the user to any of the permitted roles.
+
+
+            4- Fulfilling the Original Request
+
+                    If the user is authorized, the web server returns the original URL request.
+                The response URL of a web page is returned, enabling the user to post from data that needs to be handled by the business logic component.
+
+
+            5- Invoking Enterprise Bean Business Methods
+
+                    The web page performs the remote method call to the enterprise bean, using the user's credential to establish a secure association
+                between the web page and the enterprise bean.
+                The association is implemented as two related security contexts: one in the web server and one in the EJB container.
+
+
+        * The JB container is responsible for enforcing access control on the enterprise bean method.
+
+        * For each role, the EJB container determines whether it can map the caller to the role by using the security context associated with the call.
+
+
+    - Features of a Security Mechanism
+
+        * A properly implemented security mechanism will provide the following functionality:
+
+            > Prevent unauthorized access to application functions and business or personal data (authentication)
+
+            > Hold system users accountable for operations they perform (non-repudiation) (inkâr edilemezlik)
+
+            > Protect a system from service interruptions and other breaches that affect quality of service.
+
+        * Ideally, properly implemented security mechanisms will also be:
+
+            > Easy to administer
+
+            > Transparent to system users
+
+            > Interoperable across application and enterprise boundaries
+
+
+    - Characteristics of Application Security
+
+        * Java EE applications consist of components that can contain both protected and unprotected resources.
+
+        * Authorization provides controlled access to protected resources.
+
+        * Authorization is based on identification and authentication.
+
+            > Identification is a process that enables recognition of an entity by a system
+
+            > Authentication is a process that verifies the identity of a user,
+                                                                          device, or
+                                                                          other entity in a computer system,
+                    usually as a prerequisite to allowing access to resources in a system.
+
+        * Characteristics of application security that, when properly addressed, help to minimize the security threats faced by an enterprise including:
+
+            > Authentication:   This ensures that users are who they say they are.
+
+            > Authorization (access control):       This ensures that users have permission to perform operations or access data.
+
+            > Data Integrity:       This ensures that only authorized users can modify data.
+
+            > Confidentiality (data privacy):       This ensures that only authorized users can view sensitive data.
+
+            > Non-Repudiation:      This ensures that transactions can be proved to have happened.
+
+            > Quality of Service:       The means used to provide better service to selected network traffic over various technologies.
+
+            > Auditing:     The means used to capture a tamper-resistant record of security-related events for the purpose of being able to evaluate
+                            the effectiveness of security mechanisms. To enable this, the system maintains a record of transactions and security information.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+SECURITY MECHANISMS
+
+    - Java SE Security Mechanisms
+
+        * Java Authentication and Authorization Service (JAAS): A set of APIs that enable services to authenticate and enforce access controls upon users.
+                                                                Provides pluggable and extensible framework
+
+
+        * Java Generic Security Services (Java GSS-API): Token-based API used to securely exchange messages between communicating applications.
+
+
+        * Java Cryptography Extension (JCE): Provides a framework and implementations for encryption, key generation and key agreement,
+                                             and Message Authentication Code (MAC) algorithms.
+
+
+        * Java Secure Sockets Extension (JSSE): Provides a framework and implementations for a Java version of the Secure Sockets Layer (SSL),
+                                                and Transport Layer Security (TLS) protocols and includes functionality for data encryption,
+                                                                                                                            server authentication,
+                                                                                                                            message integrity, and
+                                                                                                                            optional client authentication
+                                                to enable secure internet communications.
+
+
+        * Simple Authentication and Security Layers (SASL): Specifies a protocol for authentication and optional establishment of a security layer
+                                                            between client and server applications.
+
+
+        * Java SE also provides a set of tools for managing keystrokes,
+                                                            certificates, and
+                                                            policy files;
+                                                            generating and verifying JAR signatures.
+
+
+    - Java EE Security Mechanisms
+
+        * Java EE security services provide a robust and easily configured security mechanism for authenticating users and
+                authorizing access to application functions and associated data at many different layers.
+
+        * Application-Layer Security
+
+            > At the application layer, application firewalls can be used to enhance application protection by
+                    protecting the communication stream and all associated application resources from attacks.
+
+            > The advantages of using application-layer security include the following.
+
+                + Security is uniquely suited to the needs of the application.
+
+                + Security is fine grained, with application-specific settings.
+
+            > The disadvantages of using application-layer security include the following.
+
+                + The application is dependent on security attributes that are not transferable between application types.
+
+                + Support for multiple protocols makes this type of security vulnerable.
+
+                + Data is close to or contained within the point of vulnerability.
+
+
+        * Transport-Layer Security
+
+            > Transport-layer security is provided by the transport mechanisms used to transmit information over the wire between clients and providers;
+                    thus, transport-layer security relies on secure HTTP transport (HTTPS) using Secure Sockets Layer (SSL).
+
+            > Transport security is a point-to-point security mechanism that can be used for authentication, message integrity, and confidentiality.
+
+            > Transport-layer security is performed in a series of phases, as follows.
+
+                + The client and server agree on an appropriate algorithm.
+
+                + A key is exchanged using public-key encryption and certificate-based authentication.
+
+                + A symmetric cipher is used during the information exchange.
+
+
+            > The advantages of using transport-layer security include the following.
+
+                + It is relatively simple, well-understood, standard technology.
+
+                + It applies to both a message body and its attachments.
+
+            > The disadvantages of using transport-layer security include the following.
+
+                + It is tightly coupled with the transport-layer protocol.
+
+                + It represents an all-or-nothing approach to security. This implies that the security mechanism is unaware of message contents,
+                        so that you cannot selectively apply security to portions of the message as you can with message-layer security.
+
+                + Protection is transient. The message is protected only while in transit. Protection is removed automatically by the endpoint when
+                        it receives the message.
+
+                + It is not an end-to-end solution, simply point-to-point.
+
+
+        * Message Layer Security
+
+            > In message-layer security, security information is contained within the SOAP message and/or SOAP message attachment,
+                    which allows security information to travel along with the message or attachment.
+
+            > The advantages of message-layer security include the following.
+
+                + Security stays with the message over all hops and after the message arrives at its destination.
+
+                + Security can be selectively applied to different portions of a message and, if using XML Web Services Security, to attachments.
+
+                + Message security can be used with intermediaries over multiple hops.
+
+                + Message security is independent of the application environment or transport protocol.
+
+            > The disadvantage of using message-layer security is that it is relatively complex and adds some overhead to processing.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+SECURING CONTAINERS
+
+    - Using Annotations to Specify Security Information
+
+        * Annotations enable a declarative style of programming and so encompass both the declarative and programmatic security concepts.
+
+        * Users can specify information about security within a class file by using annotations.
+
+        * Not all security information can be specified by using annotations, some must be specified in the deployment descriptor.
+
+
+    - Using Deployment Descriptors for Declarative Security
+
+        * Declarative security can express an application component's security requirements by using deployment descriptors.
+
+        * It can be changed without the need to modify the source code.
+
+        * They must provide certain structural information for each component if this information has not been provided in annotations or is not to be defaulted.
+
+        * Different types of components use different formats, or schemas, for their deployment descriptors.
+
+
+    - Using Programmatic Security
+
+        * Programmatic security is embedded in an application and is used to make security decisions.
+
+        * Programmatic security is useful when declarative security alone is not sufficient to express the security model of an application.
+
+        * The API for programmatic security consists of methods of the EJBContext interface and the HttpServletRequest interface.
+                These methods allow components to make business-logic decisions based on the security role of the caller or remote user.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+SECURING GLASSFISH SERVER
+
+    - You can configure GlassFish Server for the following purposes:
+
+        * Adding, deleting, or modifying authorized users
+                                         existing or custom realms
+
+        * Configuring secure HTTP and Internet Inter-Orb Protocol (IIOP) listeners.
+
+        * Configuring secure Java Management Extensions (JMX) connectors.
+
+        * Defining an interface for pluggable authorization providers using Java Authorization Contract for Containers (JACC).
+                JACC defines security contracts between GlassFish Server and authorization policy modules.
+
+        * Using pluggable audit modules.
+
+        * Customizing authentication mechanisms.
+
+        * Setting and changing policy permissions for an application.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+WORKING WITH REALMS, USERS, GROUPS, AND ROLES
+
+    - To authenticate a user, you need to follow these basic steps:
+
+        1- The application developer writes code to prompt for a user name and password.
+
+        2- The application developer communicates how to set up security for the deployed application by use of a metadata annotation or deployment descriptor.
+
+        3- The server administrator sets up authorized users and groups in GlassFish server.
+
+        4- The application deployer maps the application's roles to users, groups, and principals defined in GlassFish server.
+
+
+    - What are Realms, Users, Groups and Roles?
+
+        * What is a Realm?
+
+            > A realm is a security policy domain defined for a web or application server.
+
+            > A realm is a complete database of users and groups identified as valid users of one or more applications
+                    and controlled by the same authentication policy.
+
+            > A realm contains a collection of users, who may or may not be assigned to a group.
+
+            > The Java EE server authentication service can govern users in multiple realms. Some realms are preconfigures for GlassFish, these are:
+
+                + file Realm: The server stores user credentials locally in a file named keyfile.
+                              You can use the Administration Console to manage users in the file realm.
+                              When using the file realm, the server authentication service verifies user identity by checking the file realm.
+
+                              This realm is user for the authentication of all clients except for web browser clients that use HTTPs and certificates.
+
+
+                + certificate Realm: The server stores user credentials in a certificate database.
+                                     When using the certificate realm, the server uses certificates with HTTPS to authenticate web clients.
+
+
+                + admin-realm Realm: Is also a file realm and stores administrator user credentials locally in a file named admin-keyfile.
+                                     You can use the Administration Console to manage users in this realm in the same way you manage users in the file realm.
+
+
+        * What is a User?
+
+            > A user is an individual or application program identity that has been defined in GlassFish server.
+
+            > In a web application, a user can have associated with that identity a set of roles that entitle the user to access all resources protected by roles.
+
+            > Users can be associated with a group.
+
+            > A Java EE user is similar to an OS user. Typically, both types of users represent people.
+                    However, these two types of users are not the same.
+                    The Java EE server authentication service has no knowledge of the user name and password tou provide when you log in to the OS.
+                    The Java EE server authentication service is not connected to the security mechanism of the OS.
+                    Thw two security services manage users that belong to different realms.
+
+
+        * What is a Group?
+
+            > A group is a set of authenticated users, classified by common traits, defined in GlassFish Server.
+
+            > A Java EE user of the file realm can belong to a group in GlassFish Server. (A user in the certificate realm can not)
+
+            > A group in the GlassFish Server has a different scope from a role.
+
+            > A group is designated for the entire GlassFish Server, whereas a role is associated only with a specific application in GlassFish Server.
+
+
+        * What is a Role?
+
+            > A role is an abstract name for the permission to access a particular set of resources in an application.
+
+            > A role can be compared to a key that can open a lock.
+
+            > Many people might have a copy of the key. The lock only cares about the key, not who uses the key.
+
+
+        * Some Other Terminology
+
+            > Principle: Entity that can be authenticated by an authentication protocol in a security service.
+                         Identified by using a principal name and authenticated by using a authentication data.
+
+            > Security policy domain: Scope over which a common security policy is defined and enforced by the security administrator of the security service.
+
+            > Security attributes: Set of attributes associated with every principal. The security attributes have many uses
+                                   such as access to protected resources and auditing of users.
+                                   Security attributes can be associated with a principal by an authentication protocol.
+
+            > Credential: Object that contain or references security attributes used to authenticate a principal for Java EE services.
+                          A principal acquires a credential upon authentication or from another principal that allows its credential to be used.
+
+
+    - Managing Users and Groups in GlassFish Server
+
+        //TODO Steps for managing users
+
+        * To Add Users To GlassFish Server
+
+            1- Start GlassFish Server
+
+            2- Start the Administration Console
+
+            3- In the navigation tree, expand the Configurations node, then expand the server-config node.
+
+            4- Expand the Security node.
+
+            5- Expand the Realms node.
+
+            6- Select the realm to which you are adding users.
+
+                > Select the file realm to add users you want to access applications running in this realm.
+
+                > Select the admin-realm to add users you want to enable as system administrators
+
+                > You cannot add users to the certificate realm by using the Administration Console.
+
+            7- On the Edit Realm page, click Manage Users.
+
+            8- On the File Users or Admin Users page, click New to add a new user to the realm.
+
+            9- On the New File Realm User page, enter values in the User ID, Group List, New Password, and Confirm New Password fields.
+
+
+    - Setting Up Security Roles
+
+        * When an application is deployed, the deployer will map the roles to security identities in the operational environment.
+
+        * For Java EE components, you define security roles using the @DeclareRoles and @RolesAllowed metadata annotations.
+
+        * For example:      @RolesAllowed("DEPT-ADMIN")             @RolesAllowed("DIRECTOR")
+
+        * For servlets, use the @HttpConstraint annotation within the @ServletSecurity annotation to specify the roles that are allowed to access the servlet.
+
+                         @WebServlet(name = "PayrollServlet", urlPatterns = {"/payroll"})
+                         @ServletSecurity(  @HttpConstraint( transportGuarantee = TransportGuarantee.CONFIDENTIAL, rolesAllowed = {"DEPT-ADMIN", "DIRECTOR"} )  )
+                         public class GreetingServlet extends HttpServlet { ... }
+
+
+    - Mapping Roles to Users and Groups
+
+        * The security architecture provides a mechanism for mapping the roles defined in the application to the users or groups defined in the runtime realm.
+
+        * The role names used in the application are often the same as the group names defined in GlassFish Server.
+                Under these circumstances, you can enable a default principal-to-role mapping in GlassFish Server by using the Administration Console.
+                With that setting enabled, if the group name defined on GlassFish Server matches the role name defined in the application,
+                        there is no need to use the runtime deployment descriptor to provide a mapping.
+                The application server will implicitly make this mapping, as long as the names of the groups and roles match.
+
+
+        *               <glassfish-web-app>
+                              ...
+                              <security-role-mapping>
+                                  <role-name>Mascot</role-name>
+                                  <principal-name>Duke</principal-name>
+                              </security-role-mapping>
+
+                              <security-role-mapping>
+                                  <role-name>Admin</role-name>
+                                  <group-name>Director</group-name>
+                              </security-role-mapping>
+                              ...
+                          </glassfish-web-app>
+
+
+        * A role can be mapped to specific principals, specific groups, or both.
+
+        * The principal or group names must be valid principals or groups in the current default realm or in the realm specified in the login-config element.
+
+        * Mapping a role to a specific principal is useful when the person occupying that role may change.
+
+        * The role-name must match the role-name in the security-role element of the corresponding deployment descriptor or
+                the role name defined in a @DeclareRoles annotation.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+ESTABLISHING A SECURE CONNECTION USING SSL
+
+    - Secure Sockets Layer (SSL) technology is security that is implemented at the transport layer.
+
+    - SSL allows web browsers and web servers to communicate over a secure connection.
+
+    - In this secure connection, the data is encrypted before being sent and then is decrypted upon receipt and before processing.
+
+    - Both the browser and the server encrypt all traffic before sending any data.
+
+    - SSL addresses the following important security considerations:
+
+        * Authentication:  During your initial attempt to communicate with a web server over a secure connection,
+                           that server will present your web browser with a set of credentials in the form of a server certificate (public key certificate).
+
+        * Confidentiality:  When data is being passed between the client and the server on a network, third parties can view and intercept this data.
+                            SSL responses are encrypted so that the data cannot be deciphered by the third party and the data remains confidential.
+
+        * Integrity:  When data is being passed between the client and the server on a network, third parties can view and intercept this data.
+                      SSL helps guarantee that the data will not be modified in transit by that third party.
+
+    - Verifying and Configuring SSL Support
+
+        * As a general rule, you must address the following issues to enable SSL for a server.
+
+            > There must be a Connector element for an SSL connector in the server deployment descriptor.
+
+            > There must be valid keystore and certificate files.
+
+            > The location of the keystore file and its password must be specified in the server deployment descriptor.
+
+        * The https in this URL indicates that the browser should be using the SSL protocol.
+
