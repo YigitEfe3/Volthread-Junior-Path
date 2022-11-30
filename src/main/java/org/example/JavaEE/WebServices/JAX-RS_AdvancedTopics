@@ -1,0 +1,289 @@
+
+
+                                            JAX-RS: ADVANCED TOPICS
+
+ANNOTATIONS FOR FIELD AND BEAN PROPERTIES OF RESOURCE CLASSES
+
+    - @Context          Injects information into a class field, bean property, or method parameter
+
+      @CookieParam      Extracts information from cookies declared in the cookie request header
+
+      @FormParam        Extracts information from a request representation whose content type is application/x-www-form-urlencoded
+
+      @HeaderParam      Extracts the value of a header
+
+      @MatrixParam      Extracts the value of a URI matrix parameter
+
+      @PathParam        Extracts the value of a URI template parameter
+
+      @QueryParam       Extracts the value of a URI query parameter
+
+    - Extracting Path Parameters
+
+        * URI path templates are URIs with variables embedded within the URI syntax.
+
+        * The @PathParam annotation lets you use variable URI path fragments when you call a method.
+
+        * You can specify several path parameters in one URI.
+
+
+    - Extracting Query Parameters
+
+        * Use the @QueryParam annotation to extract query parameters from the query component of the request URI.
+
+        * The @DefaultValue annotation defines a default value, which is to be used if no values are provided for the query parameters.
+
+
+    - Extracting Form Data
+
+        * Use the @FormParam annotation to extract form parameters from HTML forms.
+
+
+    - Extracting the Java Type of a Request or Response
+
+        * The javax.ws.rs.core.Context annotation retrieves the Java types related to a request or response.
+
+        * The javax.ws.rs.core.UriInfo interface provides information about the components of a request URI.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+VALIDATING RESOURCE DATA WITH BEAN VALIDATION
+
+    - JAX-RS supports the Bean Validation to verify JAX-RS resource classes. This support consists of:
+
+        * Adding constraint annotations to resource method parameters
+
+        * Ensuring entity data is valid when the entity is passed in as a parameter
+
+
+    - Using Constraint Annotations on Resource Methods
+
+        * Bean Validation constraint annotations may be applied to parameters for a resource.
+
+        * The server will validate the parameters and either pass or throw a javax.validation.ValidationException.
+
+        * The constraints may also be applied to fields within a resource class.
+
+        * Constraints may also be applied to a resource class's JavaBeans properties by adding the constraint annotations to the getter method.
+
+        * Constraints may also be applied at the resource class level.
+
+
+    - Validating Entity Data
+
+        * Classes that contain validation constraint annotations may be used in method parameters in a resource class.
+
+        * To validate these entity classes, use the @Valid annotation on the method parameter.
+
+        * The @Valid annotation ensures that the entity class is validated at runtime.
+
+        * Additional user-defined constraints can also trigger validation of an entity.
+
+        * If a resource method returns an entity class,
+                validation may be triggered by applying the @Valid or any other user-defined constraint annotation to the resource method.
+
+
+    - Validation Exception Handling and Response Codes
+
+        * If a javax.validation.ValidationException or any subclass of ValidationException except ConstraintValidationException is thrown,
+                the JAX-RS runtime will respond to the client request with a 500 (Internal Server Error) HTTP status code.
+
+        * If a ConstraintValidationException is thrown, the JAX-RS runtime will respond to the client with one of the following HTTP status codes:
+
+            > 500 (Internal Server Error) if the exception was thrown while validating a method return type
+
+            > 400 (Bad Request) in all other cases
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+SUBRESOURCES AND RUNTIME RESOURCE RESOLUTION
+
+    - You can use a resource class to process only a part of the URI request.
+
+    - A root resource can then implement subresources that can process the remainder of the URI path.
+
+    - A resource class method that is annotated with @Path is either a subresource method or a subresource locator.
+
+        * A subresource method is used to handle requests on a subresource of the corresponding resource.
+
+        * A subresource locator is used to locate subresources of the corresponding resource.
+
+
+    - Subresource Methods
+
+        * A subresource method handles an HTTP request directly.
+
+        * The method must be annotated with a request method designator, such as @GET or @POST, in addition to @Path.
+
+        * The method is invoked for request URIs that match a URI template created by concatenating the URI template of the resource class with the
+                URI template of the method.
+
+
+    - Subresource Locators
+
+        * A subresource locator returns an object that will handle an HTTP request.
+
+        * The method must not be annotated with a request method designator.
+
+        * You must declare a subresource locator within a subresource class, and only subresource locators are used for runtime resource resolution.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+INTEGRATING JAX-RS WITH EJB TECHNOLOGY AND CDI
+
+    - JAX-RS works with Enterprise JavaBeans technology (enterprise beans) and Contexts and Dependency Injection for Java EE (CDI).
+
+    - In general, for JAX-RS to work with enterprise beans, you need to annotate the class of a bean with @Path to convert it to a root resource class.
+
+    - You can use the @Path annotation with stateless session beans and singleton POJO beans.
+
+    - Session beans can also be used for subresources.
+
+    - JAX-RS and CDI have slightly different component models.
+
+    - By default, JAX-RS root resource classes are managed in the request scope, and no annotations are required for specifying the scope.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+CONDITIONAL HTTP REQUESTS
+
+    - JAX-RS provides support for conditional GET and PUT HTTP requests.
+
+    - Conditional GET requests help save bandwidth by improving the efficiency of client processing.
+
+    - A GET request can return a Not Modified (304) response if the representation has not changed since the previous request.
+            For example, a website can return 304 responses for all its static images that have not changed since the previous request.
+
+    - A PUT request can return a Precondition Failed (412) response if the representation has been modified since the last request.
+
+    - The conditional PUT can help avoid the lost update problem.
+
+    - Conditional HTTP requests can be used with the Last-Modified and ETag headers.
+
+    - The Last-Modified header can represent dates with granularity of one second.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+RUNTIME CONTENT NEGOTIATION
+
+    - The @Produces and @Consumes annotations handle static content negotiation in JAX-RS.
+
+    - These annotations specify the content preferences of the server.
+
+    - HTTP headers such as Accept, Content-Type, and Accept-Language define the content negotiation preferences of the client.
+
+    - In addition to supporting static content negotiation,
+            JAX-RS also supports runtime content negotiation using the javax.ws.rs.core.Variant class and Request objects.
+
+    - The Variant class specifies the resource representation of content negotiation.
+
+    - Each instance of the Variant class may contain a media type, a language, and an encoding.
+
+    - The Variant object defines the resource representation that is supported by the server.
+
+    - The Variant.VariantListBuilder class is used to build a list of representation variants.
+
+    - The javax.ws.rs.core.Request.selectVariant method accepts a list of Variant objects and chooses the Variant object that matches the HTTP request.
+
+    - This method compares its list of Variant objects with the Accept, Accept-Encoding, Accept-Language, and Accept-Charset headers of the HTTP request.
+
+    - The selectVariant method returns the Variant object that matches the request or null if no matches are found.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+USING JAX-RS WITH JAXB
+
+    - Java Architecture for XML Binding (JAXB) is an XML-to-Java binding technology that simplifies the development of web services by
+            enabling transformations between schema and Java objects and between XML instance documents and Java object instances.
+
+    - An XML schema defines the data elements and structure of an XML document.
+
+    - You can use JAXB APIs and tools to establish mappings between Java classes and XML schema.
+
+    - JAXB technology provides the tools that enable you to convert your XML documents to and from Java objects.
+
+    - By using JAXB, you can manipulate data objects in the following ways.
+
+        * You can start with an XML schema definition (XSD) and use xjc, the JAXB schema compiler tool,
+                to create a set of JAXB-annotated Java classes that map to the elements and types defined in the XSD schema.
+
+        * You can start with a set of Java classes and use schemagen, the JAXB schema generator tool, to generate an XML schema.
+
+        * Once a mapping between the XML schema and the Java classes exists,
+                you can use the JAXB binding runtime to marshal and unmarshal your XML documents to and from Java objects and use
+                the resulting Java classes to assemble a web services application.
+
+    - XML is a common media format that RESTful services consume and produce.
+
+    - To deserialize and serialize XML, you can represent requests and responses by JAXB annotated objects.
+
+    - Your JAX-RS application can use the JAXB objects to manipulate XML data.
+
+    - JAXB objects can be used as request entity parameters and response entities.
+
+    - The JAX-RS runtime environment includes standard MessageBodyReader and MessageBodyWriter provider interfaces for reading/writing JAXB objects as entities.
+
+    - With JAX-RS, you enable access to your services by publishing resources.
+
+    - Resources are just simple Java classes with some additional JAX-RS annotations. These annotations express the following:
+
+        * The path of the resource (the URL you use to access it)
+
+        * The HTTP method you use to call a certain method (for example, the GET or POST method)
+
+        * The MIME type with which a method accepts or responds
+
+    - As you define the resources for your application, consider the type of data you want to expose.
+
+    - Using JAX-RS, you can distribute content from multiple sources.
+
+    - RESTful web services can use various types of input/output formats for request and response.
+
+    - Resources have representations.
+
+    - A resource representation is the content in the HTTP message that is sent to, or returned from, the resource using the URI.
+
+    - Each representation a resource supports has a corresponding media type.
+
+    - Depending on the requirements of your application, resources can return representations in a preferred single format or in multiple formats.
+
+    - JAX-RS provides @Consumes and @Produces annotations to declare the media types that are acceptable for a resource method to read and write.
+
+    - JAX-RS also maps Java types to and from resource representations using entity providers.
+
+    - A MessageBodyReader entity provider reads a request entity and deserializes the request entity into a Java type.
+
+    - Using Java Objects to Model Your Data
+
+        * If you do not have an XML schema definition for the data you want to expose, you can model your data as Java classes,
+                add JAXB annotations to these classes, and use JAXB to generate an XML schema for your data.
+
+
+    - Starting from an Existing XML Schema Definition
+
+        * If you already have an XML schema definition in an .xsd file for the data you want to expose, use the JAXB schema compiler tool.
+
+        * For @POST and @PUT resource methods, you can use a Product object directly as a parameter.
+
+        * JAX-RS maps the XML data from the request into a Product object.
+
+
+    - Using JSON with JAX-RS and JAXB
+
+        * JAX-RS can automatically read and write XML using JAXB, but it can also work with JSON data.
+
+        * JSON is a simple text-based format for data exchange derived from JavaScript.
+
+        * You can add the format application/json or MediaType.APPLICATION_JSON to the @Produces annotation in resource methods to produce responses with JSON data
+
+        * The resource methods can also accept JSON data for JAXB annotated classes:
+
+        * The client should include the following header when submitting JSON data with a POST request:         Content-Type: application/json
+
+
